@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import nodes from "@/nodes.json";
 import io from "socket.io-client";
 import toast from "react-hot-toast";
@@ -10,8 +10,8 @@ function Capture() {
     const router = useRouter();
 
     // Define an array of sockets and images
-    const [images, setImages] = useState([]);
-    const [sockets, setSockets] = useState([]);
+    const images = useRef([]);
+    const sockets = useRef([]);
 
     // Sunctions to handle and process the image
     async function handleImageData(data) {
@@ -31,17 +31,17 @@ function Capture() {
         };
 
         // If the image is not already in the array, add it
-        if (!images.includes(captureData)) {
-            images.push(captureData);
+        if (!images.current.includes(captureData)) {
+            images.current = [...images.current, captureData];
         }
 
         // Get Number of Connected Sockets
-        const connectedSocketCount = sockets.filter((x) => {
+        const connectedSocketCount = sockets.current.filter((x) => {
             return x.connected;
         }).length;
 
         // If number of images matches number of connected sockets, process the images
-        if (images.length == connectedSocketCount) {
+        if (images.current.length == connectedSocketCount) {
             toast.promise(processImage(), {
                 loading: "Capturing Video...",
                 success: <b>Video Render Successful!</b>,
@@ -56,7 +56,13 @@ function Capture() {
         return new Promise((resolve, reject) => {
             fetch("/api/process/video-360", {
                 method: "POST",
-                body: JSON.stringify({ images, email, name, x, y }),
+                body: JSON.stringify({
+                    images: images.current,
+                    email,
+                    name,
+                    x,
+                    y,
+                }),
             }).then(async (response) => {
                 const data = await response.json();
 
@@ -85,7 +91,7 @@ function Capture() {
             });
 
             // Add socket to array
-            sockets.push(socket);
+            sockets.current = [...sockets.current, socket];
 
             // Create event to listen for connection
             socket.on("connect", () => {
@@ -121,12 +127,12 @@ function Capture() {
 
         // Clean up the socket connection and timeout when the component unmounts
         return () => {
-            for (let socket of sockets) {
+            for (let socket of sockets.current) {
                 socket.disconnect();
             }
             clearTimeout(checkNoConnectedNodes);
-            setImages([]);
-            setSockets([]);
+            images.current = [];
+            sockets.current = [];
         };
     }, []);
 

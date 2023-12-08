@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import nodes from "@/nodes.json";
 import io from "socket.io-client";
 import toast from "react-hot-toast";
@@ -6,22 +6,19 @@ import Spinner from "../Loaders/Spinner";
 
 function NodeCount() {
     const [count, setCount] = useState(0);
-    const [updating, setUpdating] = useState(true);
+    const [updating, setUpdating] = useState(false);
 
-    // Define an array of sockets
-    let [sockets, setSockets] = useState([]);
+    const sockets = useRef([]);
 
     useEffect(() => {
-        let connectionAttempts = 0;
         // Loop through the nodes
-        nodes.forEach((address, index) => {
+        nodes.forEach((address) => {
             // Connect to socket
             const socket = io(`http://${address}:8080`);
 
             // Create event to listen for connection
             socket.on("connect", () => {
                 setCount((prevCount) => prevCount + 1);
-                // connectionAttempts++;
             });
 
             // Create event to listen for disconnects
@@ -30,20 +27,17 @@ function NodeCount() {
             });
 
             // Add socket to array
-            sockets.push(socket);
-            connectionAttempts++;
-
-            if (connectionAttempts == nodes.length - 1) setUpdating(false);
+            sockets.current = [...sockets.current, socket];
         });
 
         // Clean up the socket connection when the component unmounts
         return () => {
-            for (let socket of sockets) {
+            for (let socket of sockets.current) {
                 socket.disconnect();
             }
-            setSockets([]);
+            sockets.current = [];
         };
-    }, [sockets]);
+    }, []);
 
     function update(e) {
         setUpdating(true);
@@ -53,9 +47,10 @@ function NodeCount() {
 
     function updateAll(nodes) {
         // Promise function to process the image
-        console.log(sockets.length);
-        sockets.forEach((socket, index) => {
-            if (index == sockets.length - 1) setUpdating(true);
+        console.log(sockets.current.length);
+        sockets.current.forEach((socket, index) => {
+            socket.emit("UPDATE", null);
+            if (index == sockets.current.length - 1) setUpdating(false);
         });
     }
 

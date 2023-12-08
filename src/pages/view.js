@@ -9,7 +9,6 @@ async function getCaptureInfoById(captureId) {
     return new Promise((resolve, reject) => {
         const sqlite3 = require("sqlite3").verbose();
         const db = new sqlite3.Database("./db/main.db");
-        console.log(captureId);
         db.get(
             `SELECT captures.capture_id, captures.capture_date, users.email, users.first_name
              FROM captures
@@ -60,6 +59,8 @@ function View({ captureInfo }) {
     const [name, setName] = useState(captureInfo.first_name);
     const [email, setEmail] = useState(captureInfo.email);
 
+    console.log(captureInfo);
+
     useEffect(() => {
         videoRef.current.src = `/outputs/${searchParams.get(
             "videoID"
@@ -88,7 +89,7 @@ function View({ captureInfo }) {
     }
 
     return (
-        <Layout title={"Bullet Time | Captured Output"}>
+        <Layout title={"Bullet Time | Captured Output"} navbar={true}>
             <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col justify-center items-center">
                 <h1 className="p-5 font-semibold text-3xl">Your Video</h1>
                 <video
