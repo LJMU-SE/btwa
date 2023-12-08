@@ -88,6 +88,7 @@ function Capture() {
                 connect_timeout: 4000,
                 reconnection: false,
                 reconnectionAttempts: 0,
+                transports: ["websocket", "polling", "flashsocket"],
             });
 
             // Add socket to array

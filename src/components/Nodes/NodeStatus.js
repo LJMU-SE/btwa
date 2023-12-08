@@ -38,7 +38,9 @@ function NodeStatus({ address }) {
 
     useEffect(() => {
         // Connect to socket
-        const socket = io(`http://${address}:8080`);
+        const socket = io(`http://${address}:8080`, {
+            transports: ["websocket", "polling", "flashsocket"],
+        });
 
         // Create event to listen for connection
         socket.on("connect", () => {
