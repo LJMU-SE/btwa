@@ -6,20 +6,22 @@ import Spinner from "../Loaders/Spinner";
 
 function NodeCount() {
     const [count, setCount] = useState(0);
-    const [updating, setUpdating] = useState(false);
+    const [updating, setUpdating] = useState(true);
 
     // Define an array of sockets
-    let sockets = [];
+    let [sockets, setSockets] = useState([]);
 
     useEffect(() => {
+        let connectionAttempts = 0;
         // Loop through the nodes
-        nodes.forEach((address) => {
+        nodes.forEach((address, index) => {
             // Connect to socket
             const socket = io(`http://${address}:8080`);
 
             // Create event to listen for connection
             socket.on("connect", () => {
                 setCount((prevCount) => prevCount + 1);
+                // connectionAttempts++;
             });
 
             // Create event to listen for disconnects
@@ -29,6 +31,9 @@ function NodeCount() {
 
             // Add socket to array
             sockets.push(socket);
+            connectionAttempts++;
+
+            if (connectionAttempts == nodes.length - 1) setUpdating(false);
         });
 
         // Clean up the socket connection when the component unmounts
@@ -36,50 +41,21 @@ function NodeCount() {
             for (let socket of sockets) {
                 socket.disconnect();
             }
+            setSockets([]);
         };
-    }, []);
+    }, [sockets]);
 
     function update(e) {
         setUpdating(true);
         e.preventDefault();
-        toast
-            .promise(updateAll(nodes), {
-                loading: `Updating Nodes`,
-                success: `All Connected Nodes Updated`,
-                error: `Some Node Updates Failed`,
-            })
-            .finally(() => {
-                setUpdating(false);
-            });
+        updateAll();
     }
 
     function updateAll(nodes) {
         // Promise function to process the image
-        return new Promise((resolve, reject) => {
-            fetch("/api/update", {
-                method: "POST",
-                body: JSON.stringify({ nodes }),
-            }).then(async (response) => {
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`🟢 | ${data.message}`);
-                    resolve();
-                } else {
-                    const data = await response.json();
-                    console.log(`🔴 | ${data.message}`);
-                    console.log(
-                        `The following nodes updated successfully: \n    - ${data.successes.join(
-                            "\n    - "
-                        )}`
-                    );
-                    console.log(
-                        `The following nodes failed to update: \n    - ${data.failures.join(
-                            "\n    - "
-                        )}`
-                    );
-                    reject();
-                }
-            });
+        console.log(sockets.length);
+        sockets.forEach((socket, index) => {
+            if (index == sockets.length - 1) setUpdating(true);
         });
     }
 
