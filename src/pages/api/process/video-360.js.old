@@ -1,0 +1,164 @@
+const { v4 } = require("uuid");
+const fs = require("fs").promises;
+const util = require("util");
+const exec = util.promisify(require("child_process").exec);
+const sqlite3 = require("sqlite3").verbose();
+
+const dbPath = "./db/main.db";
+
+// Function to create the "users" and "captures" tables in the database
+async function createCaptureTable(db) {
+    await db.run(`CREATE TABLE IF NOT EXISTS users (
+        user_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        first_name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL
+    )`);
+
+    await db.run(`CREATE TABLE IF NOT EXISTS captures (
+        capture_id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        capture_date TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(user_id)
+    )`);
+}
+
+// Function to save a capture record in the database
+async function saveCapture(captureId, userEmail, name, db) {
+    await createCaptureTable(db);
+
+    const captureDate = new Date();
+
+    const userIdRow = await db.get(
+        "SELECT user_id FROM users WHERE email = ?",
+        [userEmail]
+    );
+
+    const userId = userIdRow ? userIdRow.user_id : await v4();
+
+    await db.run("BEGIN TRANSACTION");
+
+    try {
+        if (!userIdRow) {
+            // If the user doesn't exist, create a new user record
+            await db.run(
+                "INSERT INTO users (user_id, email, first_name) VALUES (?, ?, ?)",
+                [userId, userEmail, name]
+            );
+        }
+
+        // Insert the capture record
+        await db.run(
+            "INSERT INTO captures (capture_id, capture_date, user_id) VALUES (?, ?, ?)",
+            [captureId, captureDate, userId]
+        );
+
+        // Commit the transaction
+        await db.run("COMMIT");
+    } catch (err) {
+        console.error(err);
+        // Rollback the transaction in case of an error
+        await db.run("ROLLBACK");
+    }
+}
+
+// Function to create output directories for captured images and videos
+async function createOutputDirectory(id) {
+    // await fs.mkdir(`./public/outputs/${id}`, { recursive: true });
+    await fs.mkdir(`./public/outputs/${id}/images`, { recursive: true });
+}
+
+// Function to generate a video from captured images
+async function generateVideo(images, id, x, y) {
+    for (const [index, image] of images.entries()) {
+        // Write each image to the output directory
+        await fs.writeFile(
+            `./public/outputs/${id}/images/capture-${image.node}.jpg`,
+            image.imgData,
+            "base64"
+        );
+    }
+
+    const config = {
+        framerate: 6,
+        resolution: `${x}x${y}`,
+    };
+
+    const args = [
+        "ffmpeg",
+        "-r",
+        config.framerate,
+        "-s",
+        config.resolution,
+        "-start_number",
+        "101",
+        "-i",
+        `./public/outputs/${id}/images/capture-btns-node-%03d.jpg`,
+        "-vcodec",
+        "libx264",
+        "-crf",
+        "25",
+        `./public/outputs/${id}/output.mp4`,
+    ];
+
+    const command = args.join(" ");
+
+    try {
+        // Execute the ffmpeg command to generate the video
+        await exec(command);
+        return "Video generated successfully";
+    } catch (error) {
+        throw new Error("Unable to generate video");
+    }
+}
+
+// Request handler function
+async function handler(req, res) {
+    if (req.method !== "POST") {
+        // Only allow POST requests
+        return res.status(405).json({
+            message: `${req.method} method not allowed on this route`,
+        });
+    }
+
+    // Parse the request body
+    const { email, name, images, x, y } = JSON.parse(req.body);
+    const captureID = await v4();
+
+    try {
+        // Connect to the SQLite database (or create it if it doesn't exist)
+        const db = new sqlite3.Database(dbPath);
+
+        // Create output directories, generate video, and save capture record
+        await createOutputDirectory(captureID);
+        await generateVideo(images, captureID, x, y);
+        await saveCapture(captureID, email, name, db);
+        console.log("🟢 | Video Render Finished");
+        return res.status(200).json({
+            message: "Video Render Successful",
+            id: `${captureID}`,
+        });
+    } catch (error) {
+        console.error("🔴 | Error during video rendering:", error);
+        // Delete the output directory in case of an error
+        await fs.rmdir(`./outputs/${captureID}`, {
+            recursive: true,
+            force: true,
+        });
+        return res.status(500).json({
+            message: "Video Render Failed",
+            error: error.message,
+        });
+    }
+}
+
+// Configuration for the API endpoint
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: "50mb",
+        },
+    },
+};
+
+// Export the request handler function as the default export
+export default handler;

@@ -1,5 +1,10 @@
-import Layout from "@/components/Layout";
+import Layout from "@/components/Layout/Layout";
 
 export default function VideoLightPainting() {
-    return <Layout title={"Bullet Time | Light Painting Video"}></Layout>;
+    return (
+        <Layout
+            title={"Bullet Time | Light Painting Video"}
+            navbar={true}
+        ></Layout>
+    );
 }
