@@ -36,6 +36,6 @@ yarn-error.log*
 next-env.d.ts
 
 # Outputs Folder
-public/outputs/**
+outputs/**
 
 db/*.db

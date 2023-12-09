@@ -99,7 +99,7 @@ async function generateVideo(images, id, x, y) {
         for (let image of images) {
             // Write the buffer to the output directory
             await fs.writeFileSync(
-                `./public/outputs/${id}/images/capture-${image.node}.jpg`,
+                `./outputs/${id}/images/capture-${image.node}.jpg`,
                 image.imgData,
                 "base64"
             );
@@ -123,12 +123,12 @@ async function generateVideo(images, id, x, y) {
             "-start_number",
             "101",
             "-i",
-            `./public/outputs/${id}/images/capture-btns-node-%03d.jpg`,
+            `./outputs/${id}/images/capture-btns-node-%03d.jpg`,
             "-vcodec",
             "libx264",
             "-crf",
             "25",
-            `./public/outputs/${id}/output.mp4`,
+            `./outputs/${id}/output.mp4`,
         ];
 
         const command = args.join(" ");
@@ -158,7 +158,7 @@ async function handler(req, res) {
         const { images, x, y, email, name } = JSON.parse(body);
 
         // Make sure the output directory exists, if not, create it
-        await fs.mkdirSync(`./public/outputs/${captureID}/images`, {
+        await fs.mkdirSync(`./outputs/${captureID}/images`, {
             recursive: true,
         });
 
@@ -174,7 +174,7 @@ async function handler(req, res) {
     } catch (error) {
         console.error("🔴 | Error during video rendering:", error);
         if (captureID) {
-            await fs.rmdirSync(`./public/outputs/${captureID}`, {
+            await fs.rmdirSync(`./outputs/${captureID}`, {
                 recursive: true,
                 force: true,
             });

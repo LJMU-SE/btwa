@@ -59,12 +59,8 @@ function View({ captureInfo }) {
     const [name, setName] = useState(captureInfo.first_name);
     const [email, setEmail] = useState(captureInfo.email);
 
-    console.log(captureInfo);
-
     useEffect(() => {
-        videoRef.current.src = `/outputs/${searchParams.get(
-            "videoID"
-        )}/output.mp4`;
+        videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
     }, [router.query]);
 
     async function sendEmail(e) {

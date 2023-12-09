@@ -44,15 +44,44 @@ function NodeCount() {
     function update(e) {
         setUpdating(true);
         e.preventDefault();
-        updateAll();
+        toast
+            .promise(updateAll(nodes), {
+                loading: `Updating Nodes`,
+                success: `All Connected Nodes Updated`,
+                error: `Some Node Updates Failed`,
+            })
+            .finally(() => {
+                setUpdating(false);
+            });
     }
 
     function updateAll(nodes) {
         // Promise function to process the image
-        console.log(sockets.current.length);
-        sockets.current.forEach((socket, index) => {
-            socket.emit("UPDATE", null);
-            if (index == sockets.current.length - 1) setUpdating(false);
+        return new Promise((resolve, reject) => {
+            fetch("/api/update", {
+                method: "POST",
+                body: JSON.stringify({ nodes }),
+            }).then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`🟢 | ${data.message}`);
+                    resolve();
+                } else {
+                    const data = await response.json();
+                    console.log(`🔴 | ${data.message}`);
+                    console.log(
+                        `The following nodes updated successfully: \n    - ${data.successes.join(
+                            "\n    - "
+                        )}`
+                    );
+                    console.log(
+                        `The following nodes failed to update: \n    - ${data.failures.join(
+                            "\n    - "
+                        )}`
+                    );
+                    reject();
+                }
+            });
         });
     }
 
