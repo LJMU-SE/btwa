@@ -1,45 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import nodes from "@/nodes.json";
-import io from "socket.io-client";
 import toast from "react-hot-toast";
 import Spinner from "../Loaders/Spinner";
 
-function NodeCount() {
-    const [count, setCount] = useState(0);
+function NodeCount({ count }) {
     const [updating, setUpdating] = useState(false);
-
-    const sockets = useRef([]);
-
-    useEffect(() => {
-        // Loop through the nodes
-        nodes.forEach((address) => {
-            // Connect to socket
-            const socket = io(`http://${address}:8080`, {
-                transports: ["websocket", "polling", "flashsocket"],
-            });
-
-            // Create event to listen for connection
-            socket.on("connect", () => {
-                setCount((prevCount) => prevCount + 1);
-            });
-
-            // Create event to listen for disconnects
-            socket.on("disconnect", () => {
-                setCount((prevCount) => prevCount - 1);
-            });
-
-            // Add socket to array
-            sockets.current = [...sockets.current, socket];
-        });
-
-        // Clean up the socket connection when the component unmounts
-        return () => {
-            for (let socket of sockets.current) {
-                socket.disconnect();
-            }
-            sockets.current = [];
-        };
-    }, []);
 
     function update(e) {
         setUpdating(true);

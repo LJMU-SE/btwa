@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 function StatusInfo({ children }) {
@@ -31,8 +30,8 @@ function Ping({ status }) {
     }
 }
 
-function NodeStatus({ address }) {
-    const [connectionStatus, setConnectionStatus] = useState("Disconnected");
+function NodeStatus({ address, setCount }) {
+    const [connectionStatus, setConnectionStatus] = useState("Connecting");
     const [hostname, setHostname] = useState("NODE_HOSTNAME");
     const [version, setVersion] = useState("NODE_VERSION");
 
@@ -52,12 +51,14 @@ function NodeStatus({ address }) {
         socket.on("NODE_DATA", (data) => {
             setHostname(data.node);
             setVersion(data.version);
+            setCount((prevCount) => prevCount + 1);
         });
 
         // Create event to listen for disconnects
         socket.on("disconnect", () => {
             console.log(`🔴 | Disconnected from node ${address}`);
             setConnectionStatus("Disconnected");
+            setCount((prevCount) => prevCount - 1);
         });
 
         // Clean up the socket connection when the component unmounts
