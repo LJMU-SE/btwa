@@ -26,7 +26,7 @@ function Layout({
                 <meta property="og:description" content={description} />
                 <meta
                     property="og:image"
-                    content="http://bullet-time.beantech.uk/img/meta/meta.webp"
+                    content="http://bullet-time.beantech.uk/img/meta/meta.png"
                 />
 
                 {/* <!-- Twitter --> */}
@@ -39,7 +39,7 @@ function Layout({
                 <meta property="twitter:description" content={description} />
                 <meta
                     property="twitter:image"
-                    content="http://bullet-time.beantech.uk/img/meta/meta.webp"
+                    content="http://bullet-time.beantech.uk/img/meta/meta.png"
                 />
 
                 {/* <!-- Meta Tags Generated with https://metatags.io --> */}
