@@ -2,8 +2,8 @@ import Head from "next/head";
 import Navbar from "./Navbar";
 
 function Layout({
-    title,
-    description,
+    title = "LJMU Bullet-Time Project",
+    description = "This project, proposed by Dr Daniel Doolan, aims to create a bullet-motion effect similar to that shown in The Matrix using an array of Raspberry Pis and the post-processing and image manipulation tool FFMPEG.",
     navbar = false,
     links = true,
     children,
@@ -11,7 +11,38 @@ function Layout({
     return (
         <>
             <Head>
-                <title>{title}</title>
+                {/* <!-- Primary Meta Tags --> */}
+                <title>LJMU Bullet-Time Project</title>
+                <meta name="title" content={title} />
+                <meta name="description" content={description} />
+
+                {/* <!-- Open Graph / Facebook --> */}
+                <meta property="og:type" content="website" />
+                <meta
+                    property="og:url"
+                    content="http://bullet-time.beantech.uk"
+                />
+                <meta property="og:title" content={title} />
+                <meta property="og:description" content={description} />
+                <meta
+                    property="og:image"
+                    content="http://bullet-time.beantech.uk/img/meta/meta.webp"
+                />
+
+                {/* <!-- Twitter --> */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta
+                    property="twitter:url"
+                    content="http://bullet-time.beantech.uk"
+                />
+                <meta property="twitter:title" content={title} />
+                <meta property="twitter:description" content={description} />
+                <meta
+                    property="twitter:image"
+                    content="http://bullet-time.beantech.uk/img/meta/meta.webp"
+                />
+
+                {/* <!-- Meta Tags Generated with https://metatags.io --> */}
             </Head>
             {navbar ? <Navbar links={links} /> : null}
             <main className={navbar ? "h-[calc(100vh-80px)]" : "h-screen"}>
