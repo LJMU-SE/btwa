@@ -174,7 +174,7 @@ async function handler(req, res) {
     } catch (error) {
         console.error("🔴 | Error during video rendering:", error);
         if (captureID) {
-            await fs.rmdirSync(`./outputs/${captureID}`, {
+            await fs.rm(`./outputs/${captureID}`, {
                 recursive: true,
                 force: true,
             });

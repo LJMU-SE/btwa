@@ -4,6 +4,30 @@ import io from "socket.io-client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";
+import Spinner from "@/components/Loaders/Spinner";
+
+const Countdown = ({ count, setCount }) => {
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCount((prevCount) =>
+                prevCount > 0 ? prevCount - 1 : prevCount
+            );
+        }, 1000);
+
+        // Clear the interval when the component is unmounted
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div>
+            {count > 0 ? (
+                <h1 className="text-9xl font-black">{count}</h1>
+            ) : (
+                <Spinner />
+            )}
+        </div>
+    );
+};
 
 function Capture() {
     // Define the router
@@ -12,6 +36,13 @@ function Capture() {
     // Define an array of sockets and images
     const images = useRef([]);
     const sockets = useRef([]);
+
+    // Define Counter
+    const [count, setCount] = useState(10);
+
+    // Define capture time
+    let captureTime = new Date();
+    captureTime.setSeconds(captureTime.getSeconds() + 10);
 
     // Sunctions to handle and process the image
     async function handleImageData(data) {
@@ -42,11 +73,7 @@ function Capture() {
 
         // If number of images matches number of connected sockets, process the images
         if (images.current.length == connectedSocketCount) {
-            toast.promise(processImage(), {
-                loading: "Capturing Video...",
-                success: <b>Video Render Successful!</b>,
-                error: <b>Video Render Failed!</b>,
-            });
+            processImage();
         }
     }
 
@@ -102,6 +129,7 @@ function Capture() {
                         x: parseInt(router.query.x),
                         y: parseInt(router.query.y),
                     },
+                    time: captureTime.toUTCString(),
                 });
 
                 // Increment the connected node count
@@ -124,7 +152,7 @@ function Capture() {
                 toast.error("No Connected Nodes");
                 router.back(); // or use router.push('/') to redirect to a specific page
             }
-        }, 5000); // 5000 milliseconds (adjust as needed)
+        }, 10000); // 5000 milliseconds (adjust as needed)
 
         // Clean up the socket connection and timeout when the component unmounts
         return () => {
@@ -138,19 +166,22 @@ function Capture() {
     }, []);
 
     return (
-        <Layout title={"Capturing Video"} links={false} navbar={true}>
-            <div className="w-full h-[calc(100vh-80px)] flex justify-center items-center">
-                <div className="flex gap-2">
-                    <div className="w-5 h-5 rounded-full animate-bounce-load bg-ljmu dark:bg-white"></div>
-                    <div
-                        style={{ animationDelay: ".2s" }}
-                        className="w-5 h-5 rounded-full animate-bounce-load bg-ljmu dark:bg-white"
-                    ></div>
-                    <div
-                        style={{ animationDelay: ".4s" }}
-                        className="w-5 h-5 rounded-full animate-bounce-load bg-ljmu dark:bg-white"
-                    ></div>
-                </div>
+        <Layout title={"Capturing Video"} links={false} navbar={false}>
+            <div
+                className={
+                    "w-full h-[calc(100vh-80px)] flex flex-col justify-center items-center"
+                }
+            >
+                {count > 0 ? (
+                    <h2 className={"text-4xl font-semibold mb-20"}>
+                        Get Ready!
+                    </h2>
+                ) : (
+                    <h2 className={"text-4xl font-semibold mb-20"}>
+                        Processing Your Video...
+                    </h2>
+                )}
+                <Countdown count={count} setCount={setCount} />
             </div>
         </Layout>
     );

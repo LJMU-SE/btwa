@@ -63,6 +63,10 @@ function View({ captureInfo }) {
         videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
     }, [router.query]);
 
+    async function redirectBack() {
+        router.push("/capturing/360-video");
+    }
+
     async function sendEmail(e) {
         e.target.disabled = true;
         e.target.innerHTML = "Sending...";
@@ -89,7 +93,7 @@ function View({ captureInfo }) {
             <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col justify-center items-center">
                 <h1 className="p-5 font-semibold text-3xl">Your Video</h1>
                 <video
-                    className={"max-w-[80%] max-h-[500px] h-auto"}
+                    className={"max-w-[80%] max-h-[400px] h-auto"}
                     src={""}
                     ref={videoRef}
                     autoPlay
@@ -97,9 +101,9 @@ function View({ captureInfo }) {
                 />
                 <button
                     className="px-5 py-3 bg-ljmu hover:bg-ljmu/80 rounded-md transition-all my-5 text-white disabled:bg-ljmu/80"
-                    onClick={sendEmail}
+                    onClick={redirectBack}
                 >
-                    Get Your Copy
+                    Capture Another
                 </button>
             </div>
         </Layout>

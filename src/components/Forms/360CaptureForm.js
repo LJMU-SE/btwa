@@ -44,7 +44,7 @@ function CaptureForm360({}) {
                         inputRef={resXRef}
                         type={"text"}
                         placeholder={"1920"}
-                        defaultValue={"1920"}
+                        defaultValue={"2160"}
                         name={"resX"}
                         label={"Resolution (X)"}
                     />
@@ -52,7 +52,7 @@ function CaptureForm360({}) {
                         inputRef={resYRef}
                         type="text"
                         placeholder={"1080"}
-                        defaultValue={"1080"}
+                        defaultValue={"1440"}
                         name={"resY"}
                         label={"Resolution (Y)"}
                     />
