@@ -5,8 +5,19 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";
 import Spinner from "@/components/Loaders/Spinner";
+import { useWebSocket } from "@/WebSocketContext";
 
-const Countdown = ({ count, setCount }) => {
+function _arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = new Uint8Array(buffer);
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
+const Countdown = ({ count, setCount, onEnd }) => {
     useEffect(() => {
         const timer = setInterval(() => {
             setCount((prevCount) =>
@@ -19,7 +30,7 @@ const Countdown = ({ count, setCount }) => {
     }, []);
 
     return (
-        <div>
+        <div className="relative z-10">
             {count > 0 ? (
                 <h1 className="text-9xl font-black">{count}</h1>
             ) : (
@@ -35,17 +46,23 @@ function Capture() {
 
     // Define an array of sockets and images
     const images = useRef([]);
-    const sockets = useRef([]);
 
     // Define Counter
     const [count, setCount] = useState(10);
+
+    // Define live ref
+    const liveRef = useRef(null);
 
     // Define capture time
     let captureTime = new Date();
     captureTime.setSeconds(captureTime.getSeconds() + 10);
 
+    let streamStopTime = new Date();
+    streamStopTime.setSeconds(streamStopTime.getSeconds() + 9);
+
     // Sunctions to handle and process the image
     async function handleImageData(data) {
+        console.log("HERE");
         // If no image data, return to the homescreen
         if (!data.image_data) {
             toast.error("No Image Data Received");
@@ -67,7 +84,7 @@ function Capture() {
         }
 
         // Get Number of Connected Sockets
-        const connectedSocketCount = sockets.current.filter((x) => {
+        const connectedSocketCount = allSockets.filter((x) => {
             return x.connected;
         }).length;
 
@@ -78,6 +95,7 @@ function Capture() {
     }
 
     function processImage() {
+        console.log("Processing image");
         const { email, name, x, y } = router.query;
 
         return new Promise((resolve, reject) => {
@@ -104,85 +122,76 @@ function Capture() {
         });
     }
 
+    // Get Live Preview Socket
+    const liveSocket = useWebSocket(nodes[0]);
+    const [live, setLive] = useState(true);
+
+    // Get all sockets
+    const allSockets = useWebSocket();
+
+    // Process all images
     useEffect(() => {
-        // Initialize a counter for connected nodes
-        let connectedNodeCount = 0;
-
         // Loop through the nodes
-        nodes.forEach((address) => {
-            // Connect to socket
-            const socket = io(`http://${address}:8080`, {
-                connect_timeout: 4000,
-                reconnection: false,
-                reconnectionAttempts: 0,
-                transports: ["websocket", "polling", "flashsocket"],
-            });
-
-            // Add socket to array
-            sockets.current = [...sockets.current, socket];
-
-            // Create event to listen for connection
-            socket.on("connect", () => {
-                console.log(`🟢 | Connected to node ${address}`);
-                socket.emit("CAPTURE_IMAGE", {
-                    resolution: {
-                        x: parseInt(router.query.x),
-                        y: parseInt(router.query.y),
-                    },
-                    time: captureTime.toUTCString(),
-                });
-
-                // Increment the connected node count
-                connectedNodeCount++;
+        allSockets.forEach((socket) => {
+            // Capture an image
+            socket.emit("CAPTURE_IMAGE", {
+                resolution: {
+                    x: parseInt(router.query.x),
+                    y: parseInt(router.query.y),
+                },
+                time: captureTime.toUTCString(),
             });
 
             // Create event to listen for image data
             socket.on("IMAGE_DATA", handleImageData);
+        });
+    }, []);
 
-            // Create event to listen for disconnects
-            socket.on("disconnect", () => {
-                console.log(`🔴 | Disconnected from node ${address}`);
-            });
+    // Configure live stream
+    useEffect(() => {
+        liveSocket.emit("START_STREAM", {
+            resolution: {
+                x: parseInt(router.query.x),
+                y: parseInt(router.query.y),
+            },
+            time: streamStopTime.toUTCString(),
         });
 
-        // Check if no nodes are connected after a delay (e.g., 5 seconds)
-        const checkNoConnectedNodes = setTimeout(() => {
-            if (connectedNodeCount === 0) {
-                // No nodes are connected, redirect to the previous page
-                toast.error("No Connected Nodes");
-                router.back(); // or use router.push('/') to redirect to a specific page
+        // When video frame is received, update the stream
+        liveSocket.on("VIDEO_FRAME", (data) => {
+            // Update the image source with the base64 data
+            if (liveRef.current) {
+                liveRef.current.src = `data:image/jpeg;base64,${_arrayBufferToBase64(
+                    data.frame_data
+                )}`;
             }
-        }, 10000); // 5000 milliseconds (adjust as needed)
-
-        // Clean up the socket connection and timeout when the component unmounts
-        return () => {
-            for (let socket of sockets.current) {
-                socket.disconnect();
-            }
-            clearTimeout(checkNoConnectedNodes);
-            images.current = [];
-            sockets.current = [];
-        };
+        });
     }, []);
 
     return (
         <Layout title={"Capturing Video"} links={false} navbar={false}>
-            <div
-                className={
-                    "w-full h-[calc(100vh-80px)] flex flex-col justify-center items-center"
-                }
-            >
-                {count > 0 ? (
-                    <h2 className={"text-4xl font-semibold mb-20"}>
-                        Get Ready!
-                    </h2>
-                ) : (
-                    <h2 className={"text-4xl font-semibold mb-20"}>
-                        Processing Your Video...
-                    </h2>
-                )}
-                <Countdown count={count} setCount={setCount} />
-            </div>
+            {live ? (
+                <div
+                    className={
+                        "fixed w-full h-screen flex flex-col justify-center items-center"
+                    }
+                >
+                    <img
+                        ref={liveRef}
+                        className="opacity-70 z-0 fixed w-screen h-screen object-center object-cover"
+                    />
+                    {count > 0 ? (
+                        <h2 className={"text-4xl z-10 font-semibold mb-20"}>
+                            Get Ready!
+                        </h2>
+                    ) : (
+                        <h2 className={"text-4xl z-10 font-semibold mb-20"}>
+                            Processing Your Video...
+                        </h2>
+                    )}
+                    <Countdown count={count} setCount={setCount} />
+                </div>
+            ) : null}
         </Layout>
     );
 }

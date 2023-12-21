@@ -1,3 +1,4 @@
+import { useWebSocket } from "@/WebSocketContext";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
@@ -35,36 +36,38 @@ function NodeStatus({ address, setCount }) {
     const [hostname, setHostname] = useState("NODE_HOSTNAME");
     const [version, setVersion] = useState("NODE_VERSION");
 
-    useEffect(() => {
-        // Connect to socket
-        const socket = io(`http://${address}:8080`, {
-            transports: ["websocket", "polling", "flashsocket"],
-        });
+    const socket = useWebSocket(address);
 
+    useEffect(() => {
         // Create event to listen for connection
         socket.on("connect", () => {
-            console.log(`🟢 | Connected to node ${address}`);
             setConnectionStatus("Connected");
         });
+
+        // Get Node Data
+        console.log("Emitting request for node data");
+        socket.emit("GET_NODE_DATA");
 
         // When node information is received, update the table
         socket.on("NODE_DATA", (data) => {
             setHostname(data.node);
             setVersion(data.version);
+            setConnectionStatus("Connected");
             setCount((prevCount) => prevCount + 1);
         });
 
         // Create event to listen for disconnects
-        socket.on("disconnect", () => {
-            console.log(`🔴 | Disconnected from node ${address}`);
-            setConnectionStatus("Disconnected");
-            setCount((prevCount) => prevCount - 1);
+        socket.on("reconnect", () => {
+            setCount((prevCount) => prevCount + 1);
+            setConnectionStatus("Connected");
+            socket.emit("GET_NODE_DATA");
         });
 
-        // Clean up the socket connection when the component unmounts
-        return () => {
-            socket.disconnect();
-        };
+        // Create event to listen for disconnects
+        socket.on("disconnect", () => {
+            setConnectionStatus("Disconnected");
+            setCount((prevCount) => (prevCount > 0 ? prevCount - 1 : 0));
+        });
     }, []);
 
     return (
