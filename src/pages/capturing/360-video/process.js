@@ -62,7 +62,6 @@ function Capture() {
 
     // Sunctions to handle and process the image
     async function handleImageData(data) {
-        console.log("HERE");
         // If no image data, return to the homescreen
         if (!data.image_data) {
             toast.error("No Image Data Received");
@@ -95,7 +94,7 @@ function Capture() {
     }
 
     function processImage() {
-        console.log("Processing image");
+        // Get the email, name, and dimensions from the request query
         const { email, name, x, y } = router.query;
 
         return new Promise((resolve, reject) => {

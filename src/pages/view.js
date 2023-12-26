@@ -31,33 +31,10 @@ async function getCaptureInfoById(captureId) {
     });
 }
 
-async function sendVideo(name, email, id) {
-    const response = await fetch("/api/send-video", {
-        method: "POST",
-        body: JSON.stringify({
-            name,
-            email,
-            path: `./public/outputs/${id}/output.mp4`,
-        }),
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        console.log(`🟢 | ${data.message}`);
-        return data.message;
-    } else {
-        const data = await response.json();
-        console.log(`🔴 | ${data.message}`);
-        throw new Error(data.message);
-    }
-}
-
 function View({ captureInfo }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const videoRef = useRef();
-    const [name, setName] = useState(captureInfo.first_name);
-    const [email, setEmail] = useState(captureInfo.email);
 
     useEffect(() => {
         videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
@@ -67,44 +44,43 @@ function View({ captureInfo }) {
         router.push("/capturing/360-video");
     }
 
-    async function sendEmail(e) {
-        e.target.disabled = true;
-        e.target.innerHTML = "Sending...";
-
-        try {
-            await toast.promise(
-                sendVideo(name, email, searchParams.get("id")),
-                {
-                    loading: "Sending Email...",
-                    success: <b>Email Sent!</b>,
-                    error: <b>Unable to send email!</b>,
-                }
-            );
-            router.push("/");
-        } catch (err) {
-            e.target.disabled = false;
-            e.target.innerHTML = "Send Email";
-            console.log(`🔴 | ${err}`);
-        }
-    }
-
     return (
         <Layout title={"Bullet Time | Captured Output"} navbar={true}>
-            <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col justify-center items-center">
+            {/** <div className="h-[calc(100vh-80px)] overflow-hidden flex flex-col justify-center items-center">
                 <h1 className="p-5 font-semibold text-3xl">Your Video</h1>
-                <video
-                    className={"max-w-[80%] max-h-[400px] h-auto"}
-                    src={""}
-                    ref={videoRef}
-                    autoPlay
-                    loop
-                />
                 <button
                     className="px-5 py-3 bg-ljmu hover:bg-ljmu/80 rounded-md transition-all my-5 text-white disabled:bg-ljmu/80"
                     onClick={redirectBack}
                 >
                     Capture Another
                 </button>
+    </div> **/}
+            <div className="w-full h-[calc(100vh-80px)] flex-col md:flex-row flex flex-nowrap overflow-x-hidden">
+                <div className="w-full md:w-[50%] p-10">
+                    <h1 className="pb-5 font-semibold text-3xl">
+                        Video Preview
+                    </h1>
+                    <video
+                        className={"w-full"}
+                        src={""}
+                        ref={videoRef}
+                        autoPlay
+                        loop
+                        controls
+                    />
+                </div>
+                <div className="w-full md:w-[50%] p-10">
+                    <h1 className="pb-5 font-semibold text-3xl">
+                        Video Information
+                    </h1>
+                    <h1>Your Video Preview</h1>
+                    <h2>Your Name</h2>
+                    <h2>Your Email</h2>
+                    <h2>Capture ID</h2>
+                    <h2>Shared to Instagram:</h2>
+                    <h2>Shared to X/Twitter:</h2>
+                    <h2>Shared to YouTube:</h2>
+                </div>
             </div>
         </Layout>
     );

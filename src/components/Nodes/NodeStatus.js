@@ -45,7 +45,6 @@ function NodeStatus({ address, setCount }) {
         });
 
         // Get Node Data
-        console.log("Emitting request for node data");
         socket.emit("GET_NODE_DATA");
 
         // When node information is received, update the table
