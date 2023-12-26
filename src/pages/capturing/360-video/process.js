@@ -106,6 +106,7 @@ function Capture() {
                     name,
                     x,
                     y,
+                    type: "360-video",
                 }),
             }).then(async (response) => {
                 const data = await response.json();

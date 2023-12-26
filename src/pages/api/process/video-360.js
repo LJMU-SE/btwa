@@ -18,6 +18,11 @@ function createCaptureTable(db) {
         capture_id TEXT PRIMARY KEY UNIQUE NOT NULL,
         capture_date TEXT NOT NULL,
         user_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        size TEXT NOT NULL,
+        shared_twitter BOOLEAN NOT NULL DEFAULT false,
+        shared_instagram BOOLEAN NOT NULL DEFAULT false,
+        shared_YouTube BOOLEAN NOT NULL DEFAULT false,
         FOREIGN KEY(user_id) REFERENCES users(user_id)
     )`);
     });
@@ -49,15 +54,15 @@ async function createUser(db, userID, name, email) {
     });
 }
 
-async function saveCapture(captureId, userEmail, name) {
+async function saveCapture(captureId, userEmail, size, type, name) {
     // Function to insert a capture with user creation if needed
     const captureDate = new Date();
 
     // Function to insert a capture with the given user_id
     async function insertCaptureWithUserId(db, userID) {
         db.run(
-            "INSERT INTO captures (capture_id, capture_date, user_id) VALUES (?, ?, ?)",
-            [captureId, captureDate, userID],
+            "INSERT INTO captures (capture_id, capture_date, type, size, user_id) VALUES (?, ?, ?, ?, ?)",
+            [captureId, captureDate, type, size, userID],
             (err) => {
                 if (err) {
                     console.error("Error inserting capture:", err);
@@ -155,16 +160,18 @@ async function handler(req, res) {
 
     try {
         const { body } = req;
-        const { images, x, y, email, name } = JSON.parse(body);
+        const { images, x, y, type, email, name } = JSON.parse(body);
 
         // Make sure the output directory exists, if not, create it
         await fs.mkdirSync(`./outputs/${captureID}/images`, {
             recursive: true,
         });
 
+        console.log(x, y, type, email, name);
+
         // Generate video creation command
         await generateVideo(images, captureID, x, y);
-        await saveCapture(captureID, email, name);
+        await saveCapture(captureID, email, `${x} x ${y}`, type, name);
 
         console.log("🟢 | Video Render Finished");
         return res.status(200).json({
