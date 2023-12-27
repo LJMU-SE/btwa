@@ -2,6 +2,7 @@ import Layout from "@/components/Layout/Layout";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
+import Modal from "@/components/Modal";
 
 // Function to query the captures table by capture ID and return capture information
 async function getCaptureInfoById(captureId) {
@@ -53,6 +54,15 @@ function View({ captureInfo }) {
     const [sharedInsta, setSharedInsta] = useState(false);
     const [sharedTwitter, setSharedTwitter] = useState(false);
     const [sharedYouTube, setSharedYouTube] = useState(false);
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const openModal = () => {
+        setModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+    };
 
     useEffect(() => {
         videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
@@ -72,9 +82,6 @@ function View({ captureInfo }) {
     async function redirectBack() {
         router.push("/capturing/360-video");
     }
-
-    // Function to open the share modal
-    async function openShareModal() {}
 
     return (
         <Layout title={"Bullet Time | Captured Output"} navbar={true}>
@@ -129,11 +136,20 @@ function View({ captureInfo }) {
                     </h2>
 
                     <button
-                        onClick={openShareModal}
+                        onClick={openModal}
                         className="mt-10 px-5 py-3 w-full lg:w-max text-white bg-ljmu hover:bg-ljmu/80 dark:bg-white/80 dark:hover:bg-white/50 dark:hover:text-white dark:text-ljmu transition-all rounded-lg"
                     >
                         Share Video
                     </button>
+
+                    <Modal isOpen={isModalOpen} onClose={closeModal}>
+                        <h2 className="text-xl font-bold mb-4">
+                            This is your Tailwind-styled modal content!
+                        </h2>
+                        <p className="text-gray-700">
+                            Tailwind makes styling a breeze!
+                        </p>
+                    </Modal>
                 </div>
             </div>
         </Layout>

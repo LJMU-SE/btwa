@@ -167,8 +167,6 @@ async function handler(req, res) {
             recursive: true,
         });
 
-        console.log(x, y, type, email, name);
-
         // Generate video creation command
         await generateVideo(images, captureID, x, y);
         await saveCapture(captureID, email, `${x} x ${y}`, type, name);
