@@ -4,22 +4,22 @@ import { useRouter } from "next/router";
 const links = [
     {
         name: "360 Degree Video",
-        href: "/capturing/360-video",
+        href: "/video/360",
         img: "/img/home/link-1.webp",
     },
     {
         name: "Light Painting Video",
-        href: "/capturing/light-painting",
+        href: "/video/light-painting",
         img: "/img/home/link-2.webp",
     },
     {
-        name: "Green Screen Video",
-        href: "/capturing/green-screen",
+        name: "Slow-Mo Video",
+        href: "/video/slow-motion",
         img: "/img/home/link-3.webp",
     },
     {
-        name: "Slow-Mo Video",
-        href: "/capturing/slow-motion",
+        name: "Node Administration",
+        href: "/admin/nodes",
         img: "/img/home/link-4.webp",
     },
 ];

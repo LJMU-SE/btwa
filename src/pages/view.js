@@ -33,7 +33,7 @@ async function getCaptureInfoById(captureId) {
 
 function getType(type) {
     switch (type) {
-        case "360-video":
+        case "360":
             return "360 Video";
         default:
             return "Other";
