@@ -26,8 +26,8 @@ function Navbar({ links = true }) {
             {links ? (
                 <div>
                     <Navlink href={"/"}>Home</Navlink>
-                    <Navlink href={"/search"}>Search</Navlink>
-                    <Navlink href={"/nodes"}>Nodes</Navlink>
+                    <Navlink href={"/admin/search"}>Search</Navlink>
+                    <Navlink href={"/admin/nodes"}>Nodes</Navlink>
                 </div>
             ) : null}
         </nav>

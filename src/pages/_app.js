@@ -1,4 +1,4 @@
-import { WebSocketProvider } from "@/WebSocketContext";
+import { WebSocketProvider } from "@/utils/WebSocketContext";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
 

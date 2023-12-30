@@ -1,4 +1,4 @@
-import { useWebSocket } from "@/WebSocketContext";
+import { useWebSocket } from "@/utils/WebSocketContext";
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
@@ -45,7 +45,6 @@ function NodeStatus({ address, setCount }) {
         });
 
         // Get Node Data
-        console.log("Emitting request for node data");
         socket.emit("GET_NODE_DATA");
 
         // When node information is received, update the table
