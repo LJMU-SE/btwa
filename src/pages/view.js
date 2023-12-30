@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
+import FormContainer from "@/components/Forms/FormContainer";
 
 // Function to query the captures table by capture ID and return capture information
 async function getCaptureInfoById(captureId) {
@@ -29,6 +30,10 @@ async function getCaptureInfoById(captureId) {
         // Close the database connection
         db.close();
     });
+}
+
+function FormTitle({ children }) {
+    return <h1 className="text-xl font-black">{children}</h1>;
 }
 
 function getType(type) {
@@ -142,13 +147,19 @@ function View({ captureInfo }) {
                         Share Video
                     </button>
 
-                    <Modal isOpen={isModalOpen} onClose={closeModal}>
-                        <h2 className="text-xl font-bold mb-4">
-                            This is your Tailwind-styled modal content!
-                        </h2>
-                        <p className="text-gray-700">
-                            Tailwind makes styling a breeze!
-                        </p>
+                    <Modal
+                        isOpen={isModalOpen}
+                        onClose={closeModal}
+                        title="Share Video"
+                    >
+                        <form>
+                            <FormContainer>
+                                <h1></h1>
+                            </FormContainer>
+                            <FormContainer></FormContainer>
+                            <FormContainer></FormContainer>
+                            <FormContainer></FormContainer>
+                        </form>
                     </Modal>
                 </div>
             </div>

@@ -190,7 +190,7 @@ function Capture() {
                     "fixed w-full h-screen flex flex-col justify-center items-center"
                 }
             >
-                <div className="bg-ljmu fixed w-screen h-screen z-0">
+                <div className="bg-[#101018] fixed w-screen h-screen z-0">
                     <img
                         ref={liveRef}
                         className="opacity-70 z-0 fixed w-screen h-screen object-center object-cover"
