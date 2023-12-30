@@ -2,6 +2,11 @@ import Layout from "@/components/Layout/Layout";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
+import Modal from "@/components/Modal";
+import FormContainer from "@/components/Forms/FormContainer";
+import YesNoButtons from "@/components/Forms/YesNoCheckbox";
+import FormInput from "@/components/Forms/FormInput";
+import toast from "react-hot-toast";
 
 // Function to query the captures table by capture ID and return capture information
 async function getCaptureInfoById(captureId) {
@@ -30,9 +35,13 @@ async function getCaptureInfoById(captureId) {
     });
 }
 
+function FormTitle({ children }) {
+    return <h1 className="text-xl font-semibold mt-5">{children}</h1>;
+}
+
 function getType(type) {
     switch (type) {
-        case "360-video":
+        case "360":
             return "360 Video";
         default:
             return "Other";
@@ -50,9 +59,28 @@ function View({ captureInfo }) {
     const [type, setType] = useState("Loading...");
     const [captureID, setCaptureID] = useState("Loading...");
 
-    const [sharedInsta, setSharedInsta] = useState(false);
-    const [sharedTwitter, setSharedTwitter] = useState(false);
-    const [sharedYouTube, setSharedYouTube] = useState(false);
+    // Set sharing variables
+    const [sharedInstaStatus, setSharedInstaStatus] = useState(false);
+    const [sharedTwitterStatus, setSharedTwitterStatus] = useState(false);
+    const [sharedYouTubeStatus, setSharedYouTubeStatus] = useState(false);
+
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const openModal = () => {
+        if (
+            sharedInstaStatus == true &&
+            sharedTwitterStatus == true &&
+            sharedYouTubeStatus == true
+        ) {
+            toast.error("Video has already been shared to all platforms");
+        } else {
+            setModalOpen(true);
+        }
+    };
+
+    const closeModal = () => {
+        setModalOpen(false);
+    };
 
     useEffect(() => {
         videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
@@ -63,18 +91,34 @@ function View({ captureInfo }) {
         setSize(captureInfo.size);
         setType(getType(captureInfo.type));
 
-        setSharedInsta(captureInfo.shared_instagram);
-        setSharedTwitter(captureInfo.shared_twitter);
-        setSharedYouTube(captureInfo.shared_YouTube);
+        setSharedInstaStatus(captureInfo.shared_instagram);
+        setSharedTwitterStatus(captureInfo.shared_twitter);
+        setSharedYouTubeStatus(captureInfo.shared_YouTube);
     }, [router.query]);
 
-    // Function to redirect back to the capture screen
-    async function redirectBack() {
-        router.push("/capturing/360-video");
+    const [shareToInsta, setShareToInsta] = useState(false);
+    const [shareToTwitter, setShareToTwitter] = useState(false);
+    const [shareToYouTube, setShareToYouTube] = useState(false);
+    const instaRef = useRef();
+    const twitterRef = useRef();
+
+    function countTrue(values) {
+        let counter = 0;
+        for (let value of values) {
+            if (value == true) counter++;
+        }
+        return counter;
     }
 
-    // Function to open the share modal
-    async function openShareModal() {}
+    // Function to publish the media
+    async function share(e) {
+        e.preventDefault();
+        if (!shareToInsta && !shareToTwitter && !shareToYouTube)
+            return closeModal();
+
+        // Process Publishing API
+        closeModal();
+    }
 
     return (
         <Layout title={"Bullet Time | Captured Output"} navbar={true}>
@@ -117,25 +161,90 @@ function View({ captureInfo }) {
                     </h1>
                     <h2 className="py-1">
                         <b className="opacity-70">Shared to Instagram:</b>{" "}
-                        {sharedInsta ? "Yes" : "No"}
+                        {sharedInstaStatus ? "Yes" : "No"}
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Shared to X/Twitter:</b>{" "}
-                        {sharedTwitter ? "Yes" : "No"}
+                        {sharedTwitterStatus ? "Yes" : "No"}
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Shared to YouTube:</b>{" "}
-                        {sharedYouTube ? "Yes" : "No"}
+                        {sharedYouTubeStatus ? "Yes" : "No"}
                     </h2>
 
                     <button
-                        onClick={openShareModal}
+                        onClick={openModal}
                         className="mt-10 px-5 py-3 w-full lg:w-max text-white bg-ljmu hover:bg-ljmu/80 dark:bg-white/80 dark:hover:bg-white/50 dark:hover:text-white dark:text-ljmu transition-all rounded-lg"
                     >
                         Share Video
                     </button>
                 </div>
             </div>
+            <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                title="Share Video"
+            >
+                <form onSubmit={share}>
+                    {!sharedYouTubeStatus ? (
+                        <FormContainer title={"YouTube"}>
+                            <YesNoButtons
+                                label={"Share to YouTube?"}
+                                setState={setShareToYouTube}
+                                state={shareToYouTube}
+                            />
+                        </FormContainer>
+                    ) : null}
+
+                    {!sharedInstaStatus ? (
+                        <FormContainer title={"Instagram"}>
+                            <YesNoButtons
+                                label={"Share to Instagram?"}
+                                setState={setShareToInsta}
+                                state={shareToInsta}
+                            />
+                            <FormInput
+                                disabled={!shareToInsta}
+                                placeholder={
+                                    shareToInsta
+                                        ? "Instagram Handle"
+                                        : "Select Yes Above"
+                                }
+                                label={"Instagram Handle"}
+                                inputRef={instaRef}
+                            />
+                        </FormContainer>
+                    ) : null}
+                    {!sharedTwitterStatus ? (
+                        <FormContainer title="Twitter/X">
+                            <YesNoButtons
+                                label={"Share to Twitter/X?"}
+                                setState={setShareToTwitter}
+                                state={shareToTwitter}
+                            />
+                            <FormInput
+                                disabled={!shareToTwitter}
+                                placeholder={
+                                    shareToTwitter
+                                        ? "Twitter Handle"
+                                        : "Select Yes Above"
+                                }
+                                label={"Twitter Handle"}
+                                inputRef={twitterRef}
+                            />
+                        </FormContainer>
+                    ) : null}
+                    <button className="mt-10 px-5 py-3 w-full lg:w-max text-white bg-ljmu hover:bg-ljmu/80 dark:bg-white/80 dark:hover:bg-white/50 dark:hover:text-white dark:text-ljmu transition-all rounded-lg">
+                        Share To{" "}
+                        {countTrue([
+                            shareToInsta,
+                            shareToTwitter,
+                            shareToYouTube,
+                        ])}{" "}
+                        Platform(s)
+                    </button>
+                </form>
+            </Modal>
         </Layout>
     );
 }

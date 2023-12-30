@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import nodes from "@/nodes.json";
-import io from "socket.io-client";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";
 import Spinner from "@/components/Loaders/Spinner";
-import { useWebSocket } from "@/WebSocketContext";
+import { useWebSocket } from "@/utils/WebSocketContext";
 
 function _arrayBufferToBase64(buffer) {
     var binary = "";
@@ -32,7 +31,7 @@ const Countdown = ({ count, setCount, onEnd }) => {
     return (
         <div className="relative z-10">
             {count > 0 ? (
-                <h1 className="text-9xl font-black">{count}</h1>
+                <h1 className="text-9xl text-white font-black">{count}</h1>
             ) : (
                 <Spinner />
             )}
@@ -53,19 +52,12 @@ function Capture() {
     // Define live ref
     const liveRef = useRef(null);
 
-    // Define capture time
-    let captureTime = new Date();
-    captureTime.setSeconds(captureTime.getSeconds() + 10);
-
-    let streamStopTime = new Date();
-    streamStopTime.setSeconds(streamStopTime.getSeconds() + 9);
-
     // Sunctions to handle and process the image
     async function handleImageData(data) {
         // If no image data, return to the homescreen
         if (!data.image_data) {
             toast.error("No Image Data Received");
-            return router.push("/capturing/360-video");
+            return router.back();
         }
 
         // Parse image data as a buffer string
@@ -96,9 +88,16 @@ function Capture() {
     function processImage() {
         // Get the email, name, and dimensions from the request query
         const { email, name, x, y } = router.query;
+        let processingURL = "";
+
+        switch (router.query.method) {
+            default:
+                processingURL = "/api/processing/360";
+                break;
+        }
 
         return new Promise((resolve, reject) => {
-            fetch("/api/process/video-360", {
+            fetch(processingURL, {
                 method: "POST",
                 body: JSON.stringify({
                     images: images.current,
@@ -106,7 +105,7 @@ function Capture() {
                     name,
                     x,
                     y,
-                    type: "360-video",
+                    type: router.query.method || "360",
                 }),
             }).then(async (response) => {
                 const data = await response.json();
@@ -124,23 +123,39 @@ function Capture() {
 
     // Get Live Preview Socket
     const liveSocket = useWebSocket(nodes[0]);
-    const [live, setLive] = useState(true);
+
+    // Set live preview stop time
+    let streamStopTime = new Date();
+    streamStopTime.setSeconds(streamStopTime.getSeconds() + 9);
 
     // Get all sockets
     const allSockets = useWebSocket();
 
+    // Set params based on capture type
+    let params = {
+        resolution: {
+            x: parseInt(router.query.x),
+            y: parseInt(router.query.y),
+        },
+    };
+
     // Process all images
     useEffect(() => {
+        switch (router.query.method) {
+            case "360":
+                // Define capture time
+                let captureTime = new Date();
+                captureTime.setSeconds(captureTime.getSeconds() + 10);
+
+                params.time = captureTime.toUTCString();
+                break;
+            default:
+                break;
+        }
         // Loop through the nodes
         allSockets.forEach((socket) => {
             // Capture an image
-            socket.emit("CAPTURE_IMAGE", {
-                resolution: {
-                    x: parseInt(router.query.x),
-                    y: parseInt(router.query.y),
-                },
-                time: captureTime.toUTCString(),
-            });
+            socket.emit("CAPTURE_IMAGE", params);
 
             // Create event to listen for image data
             socket.on("IMAGE_DATA", handleImageData);
@@ -170,28 +185,36 @@ function Capture() {
 
     return (
         <Layout title={"Capturing Video"} links={false} navbar={false}>
-            {live ? (
-                <div
-                    className={
-                        "fixed w-full h-screen flex flex-col justify-center items-center"
-                    }
-                >
+            <div
+                className={
+                    "fixed w-full h-screen flex flex-col justify-center items-center"
+                }
+            >
+                <div className="bg-[#101018] fixed w-screen h-screen z-0">
                     <img
                         ref={liveRef}
                         className="opacity-70 z-0 fixed w-screen h-screen object-center object-cover"
                     />
-                    {count > 0 ? (
-                        <h2 className={"text-4xl z-10 font-semibold mb-20"}>
-                            Get Ready!
-                        </h2>
-                    ) : (
-                        <h2 className={"text-4xl z-10 font-semibold mb-20"}>
-                            Processing Your Video...
-                        </h2>
-                    )}
-                    <Countdown count={count} setCount={setCount} />
                 </div>
-            ) : null}
+                {count > 0 ? (
+                    <h2
+                        className={
+                            "text-4xl text-white z-10 font-semibold mb-20"
+                        }
+                    >
+                        Get Ready!
+                    </h2>
+                ) : (
+                    <h2
+                        className={
+                            "text-4xl text-white z-10 font-semibold mb-20"
+                        }
+                    >
+                        Processing Your Video...
+                    </h2>
+                )}
+                <Countdown count={count} setCount={setCount} />
+            </div>
         </Layout>
     );
 }
