@@ -1,0 +1,1 @@
+python stabilise.py -i "C:\Users\beenh\OneDrive\Documents\GitHub\LJMU-SE\btwa\outputs\5830805d-5821-4619-9703-6f19e41fceb9\output.mp4" -o "C:\Users\beenh\OneDrive\Documents\GitHub\LJMU-SE\btwa\outputs\5830805d-5821-4619-9703-6f19e41fceb9\stabilised.mp4"
