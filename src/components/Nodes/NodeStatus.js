@@ -31,41 +31,44 @@ function Ping({ status }) {
     }
 }
 
-function NodeStatus({ address, setCount }) {
+function NodeStatus({ address, count, setCount }) {
     const [connectionStatus, setConnectionStatus] = useState("Connecting");
     const [hostname, setHostname] = useState("NODE_HOSTNAME");
     const [version, setVersion] = useState("NODE_VERSION");
+    const [connectedCount, setConnectedCount] = useState(0);
+
+    const websockets = useWebSocket();
 
     const socket = useWebSocket(address);
 
     useEffect(() => {
-        // Create event to listen for connection
-        socket.on("connect", () => {
-            setConnectionStatus("Connected");
-        });
-
         // Get Node Data
         socket.emit("GET_NODE_DATA");
+        setCount(
+            websockets.filter((x) => {
+                return x.connected;
+            }).length
+        );
+
+        socket.on("connect", () => {
+            // Get Node Data
+            socket.emit("GET_NODE_DATA");
+            setConnectionStatus("Connected");
+
+            if (count + 1 > websockets.length) return;
+            setCount((oldCount) => oldCount + 1);
+        });
+
+        socket.on("disconnect", () => {
+            setConnectionStatus("Disconnected");
+            if (count + 1 < 0) return;
+            setCount((oldCount) => oldCount - 1);
+        });
 
         // When node information is received, update the table
         socket.on("NODE_DATA", (data) => {
             setHostname(data.node);
             setVersion(data.version);
-            setConnectionStatus("Connected");
-            setCount((prevCount) => prevCount + 1);
-        });
-
-        // Create event to listen for disconnects
-        socket.on("reconnect", () => {
-            setCount((prevCount) => prevCount + 1);
-            setConnectionStatus("Connected");
-            socket.emit("GET_NODE_DATA");
-        });
-
-        // Create event to listen for disconnects
-        socket.on("disconnect", () => {
-            setConnectionStatus("Disconnected");
-            setCount((prevCount) => (prevCount > 0 ? prevCount - 1 : 0));
         });
     }, []);
 

@@ -19,6 +19,7 @@ function AdminPage() {
                         <NodeStatus
                             key={node}
                             address={node}
+                            count={count}
                             setCount={setCount}
                         />
                     ))}
