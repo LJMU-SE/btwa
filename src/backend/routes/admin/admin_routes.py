@@ -2,27 +2,24 @@ import json
 import paramiko
 from . import admin_blueprint
 from flask import jsonify, request
+import concurrent.futures
 
 def update_host(host):
-    try:
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(host, port=22, username='admin', password='admin', timeout=10)
+    ssh = paramiko.SSHClient()
+    ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(host, username='admin', password='admin')
 
-        command = 'cd btns && nohup sudo ./update.sh > update.log 2> update.err < /dev/null &'
-        stdin, stdout, stderr = client.exec_command(command)
+    command = 'cd btns && nohup sudo ./update.sh > update.log 2> update.err < /dev/null &'
+    stdin, stdout, stderr = ssh.exec_command(command)
 
-        exit_code = stdout.channel.recv_exit_status()
-        
-        client.close()
+    exit_code = stdout.channel.recv_exit_status()
+    ssh.close()
 
-        if exit_code == 0:
-            return {'host': host, 'status': 200}
-        else:
-            return {'host': host, 'status': 500, 'message': f'Command failed with code {exit_code}'}
-
-    except Exception as e:
-        return {'host': host, 'status': 500, 'message': f'Error: {str(e)}'}
+    if exit_code == 0:
+        return {'host': host, 'status': 200}
+    else:
+        return {'host': host, 'status': 500, 'message': f'Command failed with code {exit_code}'}
 
 
 @admin_blueprint.route('/update', methods=["POST"])
@@ -30,11 +27,8 @@ async def update_nodes():
     data = json.loads(request.data)
     nodes = data.get('nodes', [])
 
-    results = []
-
-    for node in nodes:
-        result = update_host(node)
-        results.append(result)
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(executor.map(update_host, nodes))
 
     success_results = [result for result in results if result['status'] == 200]
 

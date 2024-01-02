@@ -12,9 +12,9 @@ function AdminPage() {
             navbar={true}
             showNodes={false}
         >
-            <div className="w-full overflow-hidden">
+            <div className="w-full h-full overflow-hidden">
                 <NodeCount count={count} />
-                <div className="w-full flex flex-row absolute bottom-0 flex-wrap max-h-[calc(100vh-316px)] overflow-auto border-[0.5px] border-solid dark:border-white/25">
+                <div className="w-full flex flex-row absolute bottom-0 flex-wrap max-h-[calc(100vh-320px)] overflow-auto border-[0.5px] border-solid dark:border-white/25">
                     {nodes.map((node) => (
                         <NodeStatus
                             key={node}
