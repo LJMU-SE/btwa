@@ -1,6 +1,7 @@
 import { WebSocketProvider } from "@/utils/WebSocketContext";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
+import APIStatus from "@/components/Layout/APIStatus";
 
 export default function App({ Component, pageProps }) {
     return (
