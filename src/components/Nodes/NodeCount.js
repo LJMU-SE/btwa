@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import nodes from "@/nodes.json";
 import toast from "react-hot-toast";
 import Spinner from "../Loaders/Spinner";
+import { useWebSocket } from "@/utils/WebSocketContext";
+import nodes from "@/nodes";
 
 function NodeCount({ count }) {
     const [updating, setUpdating] = useState(false);
