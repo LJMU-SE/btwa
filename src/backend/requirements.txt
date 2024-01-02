@@ -3,3 +3,4 @@ flask[async]
 uuid
 paramiko
 opencv-python
+flask-cors
