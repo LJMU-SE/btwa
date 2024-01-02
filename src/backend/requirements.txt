@@ -2,3 +2,4 @@ vidstab
 flask[async]
 uuid
 paramiko
+opencv-python
