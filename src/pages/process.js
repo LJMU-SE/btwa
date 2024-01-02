@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";
 import Spinner from "@/components/Loaders/Spinner";
 import { useWebSocket } from "@/utils/WebSocketContext";
+import { headers } from "../../next.config";
 
 function _arrayBufferToBase64(buffer) {
     var binary = "";
@@ -107,6 +108,9 @@ function Capture() {
                     y,
                     type: router.query.method || "360",
                 }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
             }).then(async (response) => {
                 const data = await response.json();
 

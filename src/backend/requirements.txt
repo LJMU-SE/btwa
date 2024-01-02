@@ -1,0 +1,4 @@
+vidstab
+flask[async]
+uuid
+paramiko

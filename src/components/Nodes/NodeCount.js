@@ -23,7 +23,7 @@ function NodeCount({ count }) {
     function updateAll(nodes) {
         // Promise function to process the image
         return new Promise((resolve, reject) => {
-            fetch("/api/update", {
+            fetch("/api/admin/update", {
                 method: "POST",
                 body: JSON.stringify({ nodes }),
             }).then(async (response) => {
@@ -32,19 +32,24 @@ function NodeCount({ count }) {
                     console.log(`🟢 | ${data.message}`);
                     resolve();
                 } else {
-                    const data = await response.json();
-                    console.log(`🔴 | ${data.message}`);
-                    console.log(
-                        `The following nodes updated successfully: \n    - ${data.successes.join(
-                            "\n    - "
-                        )}`
-                    );
-                    console.log(
-                        `The following nodes failed to update: \n    - ${data.failures.join(
-                            "\n    - "
-                        )}`
-                    );
-                    reject();
+                    try {
+                        const data = await response.json();
+                        console.log(`🔴 | ${data.message}`);
+                        console.log(
+                            `The following nodes updated successfully: \n    - ${data.successes.join(
+                                "\n    - "
+                            )}`
+                        );
+                        console.log(
+                            `The following nodes failed to update: \n    - ${data.failures.join(
+                                "\n    - "
+                            )}`
+                        );
+                    } catch (error) {
+                        console.error(error);
+                    } finally {
+                        reject();
+                    }
                 }
             });
         });
