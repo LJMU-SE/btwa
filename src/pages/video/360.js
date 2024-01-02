@@ -24,8 +24,8 @@ export default function Video360() {
     }
     return (
         <Layout title={"Bullet Time | 360 Degree Video"} navbar={true}>
-            <div className="w-full h-full p-10 flex justify-center items-center">
-                <form onSubmit={submit} className="w-full max-w-3xl">
+            <div className="w-full h-full p-10 flex justify-center items-center overflow-auto">
+                <form onSubmit={submit} className="w-full max-w-3xl h-full">
                     <FormContainer title={"User Information"}>
                         <FormInput
                             inputRef={nameRef}

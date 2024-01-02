@@ -1,11 +1,13 @@
 import Head from "next/head";
 import Navbar from "./Navbar";
+import APIStatus from "./APIStatus";
 
 function Layout({
     title = "LJMU Bullet-Time Project",
     description = "This project, proposed by Dr Daniel Doolan, aims to create a bullet-motion effect similar to that shown in The Matrix using an array of Raspberry Pis and the post-processing and image manipulation tool FFMPEG.",
     navbar = false,
     links = true,
+    showNodes = true,
     children,
 }) {
     return (
@@ -46,6 +48,7 @@ function Layout({
             </Head>
             {navbar ? <Navbar links={links} /> : null}
             <main className={navbar ? "h-[calc(100vh-80px)]" : "h-screen"}>
+                <APIStatus showNodes={showNodes} />
                 {children}
             </main>
         </>
