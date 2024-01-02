@@ -1,6 +1,5 @@
 import { useWebSocket } from "@/utils/WebSocketContext";
 import { useEffect, useState } from "react";
-import io from "socket.io-client";
 
 function StatusInfo({ children }) {
     return <div className="w-full text-left px-10">{children}</div>;
@@ -69,6 +68,7 @@ function NodeStatus({ address, count, setCount }) {
         socket.on("NODE_DATA", (data) => {
             setHostname(data.node);
             setVersion(data.version);
+            setConnectionStatus("Connected");
         });
     }, []);
 
