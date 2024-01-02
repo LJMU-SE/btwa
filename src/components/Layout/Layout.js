@@ -12,6 +12,7 @@ function Layout({
 }) {
     return (
         <>
+            <APIStatus showNodes={showNodes} />
             <Head>
                 {/* <!-- Primary Meta Tags --> */}
                 <title>LJMU Bullet-Time Project</title>
@@ -48,7 +49,6 @@ function Layout({
             </Head>
             {navbar ? <Navbar links={links} /> : null}
             <main className={navbar ? "h-[calc(100vh-80px)]" : "h-screen"}>
-                <APIStatus showNodes={showNodes} />
                 {children}
             </main>
         </>
