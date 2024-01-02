@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout/Layout";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import FormContainer from "@/components/Forms/FormContainer";
 import YesNoButtons from "@/components/Forms/YesNoCheckbox";
@@ -33,10 +33,6 @@ async function getCaptureInfoById(captureId) {
         // Close the database connection
         db.close();
     });
-}
-
-function FormTitle({ children }) {
-    return <h1 className="text-xl font-semibold mt-5">{children}</h1>;
 }
 
 function getType(type) {
@@ -83,7 +79,9 @@ function View({ captureInfo }) {
     };
 
     useEffect(() => {
-        videoRef.current.src = `/api/video/${searchParams.get("videoID")}`;
+        videoRef.current.src = `/api/video/preview/${searchParams.get(
+            "videoID"
+        )}`;
 
         setCaptureID(searchParams.get("videoID"));
         setFname(captureInfo.first_name);
@@ -255,6 +253,18 @@ export async function getServerSideProps(context) {
 
     try {
         const captureInfo = await getCaptureInfoById(captureId);
+        if (!captureInfo) {
+            console.log(
+                `Unable to locate database entry for video with id: ${captureId}`
+            );
+            return {
+                redirect: {
+                    permanent: false,
+                    destination: "/video/360",
+                },
+            };
+        }
+
         return {
             props: { captureInfo },
         };
