@@ -38,5 +38,5 @@ next-env.d.ts
 # Outputs Folder
 outputs/**
 
-db/*.db
+db/**
 **/__pycache__/**
