@@ -26,8 +26,6 @@ async function getCaptureInfoById(captureId) {
                     return;
                 }
 
-                console.log(row);
-
                 resolve(row);
             }
         );
