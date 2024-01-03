@@ -87,7 +87,7 @@ def get_captures_by_email(email):
 
         # Get the user_id for the given email
         cursor = db.cursor()
-        cursor.execute("SELECT user_id, first_name FROM users WHERE email LIKE ?", ('%' + email + '%',))
+        cursor.execute("SELECT * FROM users WHERE email LIKE ?", ('%' + email + '%',))
         row = cursor.fetchone()
 
         # If no user exists with the given email, return None
@@ -97,6 +97,7 @@ def get_captures_by_email(email):
         # Get all captures for the given user_id
         user_id = row[0]
         name = row[1]
+        email = row[2]
         cursor.execute("SELECT * FROM captures WHERE user_id = ?", (user_id,))
         rows = cursor.fetchall()
 
@@ -119,7 +120,8 @@ def get_captures_by_email(email):
             # Create a user object without the email
             user = {
                 'user_id': user_id,
-                'name': name
+                'name': name,
+                'email': email
             }
 
             captures.append({

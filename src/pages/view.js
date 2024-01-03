@@ -1,12 +1,13 @@
 import Layout from "@/components/Layout/Layout";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { redirect, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Modal from "@/components/Modal";
 import FormContainer from "@/components/Forms/FormContainer";
 import YesNoButtons from "@/components/Forms/YesNoCheckbox";
 import FormInput from "@/components/Forms/FormInput";
 import toast from "react-hot-toast";
+import moment from "moment";
 
 // Function to query the captures table by capture ID and return capture information
 async function getCaptureInfoById(captureId) {
@@ -53,6 +54,7 @@ function View({ captureInfo }) {
     const [email, setEmail] = useState("Loading...");
     const [size, setSize] = useState("Loading...");
     const [type, setType] = useState("Loading...");
+    const [date, setDate] = useState("Loading...");
     const [captureID, setCaptureID] = useState("Loading...");
 
     // Set sharing variables
@@ -87,6 +89,7 @@ function View({ captureInfo }) {
         setFname(captureInfo.first_name);
         setEmail(captureInfo.email);
         setSize(captureInfo.size);
+        setDate(captureInfo.capture_date);
         setType(getType(captureInfo.type));
 
         setSharedInstaStatus(captureInfo.shared_instagram);
@@ -143,6 +146,10 @@ function View({ captureInfo }) {
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Your Email:</b> {email}
+                    </h2>
+                    <h2 className=" py-1">
+                        <b className="opacity-70">Captured On:</b>{" "}
+                        {moment(date).format("MMMM Do YYYY [at] h:mm:ss a")}
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Video Resolution:</b> {size}
