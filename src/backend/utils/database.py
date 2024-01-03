@@ -87,7 +87,7 @@ def get_captures_by_email(email):
 
         # Get the user_id for the given email
         cursor = db.cursor()
-        cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
+        cursor.execute("SELECT user_id, first_name FROM users WHERE email LIKE ?", ('%' + email + '%',))
         row = cursor.fetchone()
 
         # If no user exists with the given email, return None
@@ -96,10 +96,38 @@ def get_captures_by_email(email):
 
         # Get all captures for the given user_id
         user_id = row[0]
+        name = row[1]
         cursor.execute("SELECT * FROM captures WHERE user_id = ?", (user_id,))
-        captures = cursor.fetchall()
+        rows = cursor.fetchall()
 
-        # Return the captures
+        # Create a list to store the captures
+        captures = []
+
+        # Iterate over the rows and create capture objects
+        for row in rows:
+            capture = {
+                'capture_id': row[0],
+                'capture_date': row[1],
+                'user_id': row[2],
+                'type': row[3],
+                'size': row[4],
+                'shared_twitter': row[5],
+                'shared_instagram': row[6],
+                'shared_YouTube': row[7]
+            }
+
+            # Create a user object without the email
+            user = {
+                'user_id': user_id,
+                'name': name
+            }
+
+            captures.append({
+                "capture": capture,
+                "user": user
+            })
+
+        # Return the captures and user objects
         return captures
     except Exception as e:
         print(f"Error in get_captures_by_email: {e}")

@@ -42,6 +42,6 @@ async def update_nodes():
 async def search_for_capture():
     try:
         searches = get_captures_by_email(request.args.get('email'))
-        return jsonify({'results': searches}), 200
+        return jsonify({"message": "Success", 'results': searches}), 200
     except Exception as e:
         return jsonify({ 'message': f'Error in search_for_capture: {e}' }), 500
