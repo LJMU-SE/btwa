@@ -3,6 +3,7 @@ import paramiko
 from . import admin_blueprint
 from flask import jsonify, request
 import concurrent.futures
+from utils.database import get_captures_by_email
 
 def update_host(host):
     ssh = paramiko.SSHClient()
@@ -36,3 +37,11 @@ async def update_nodes():
         return jsonify({'message': 'Nodes Updated'}), 200
     else:
         return jsonify({'message': 'Some Nodes Update Failed'}), 500
+    
+@admin_blueprint.route('/search', methods=["GET"])
+async def search_for_capture():
+    try:
+        searches = get_captures_by_email(request.args.get('email'))
+        return jsonify({"message": "Success", 'results': searches}), 200
+    except Exception as e:
+        return jsonify({ 'message': f'Error in search_for_capture: {e}' }), 500
