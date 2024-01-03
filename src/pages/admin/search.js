@@ -67,16 +67,25 @@ function SearchPage() {
                         />
                     </div>
                 </div>
-                <div className="max-w-full w-[700px] mx-auto mb-4 px-4 py-5">
-                    {results.length > 0
-                        ? results.map((result) => (
-                              <SearchResult
-                                  key={result.capture.capture_id}
-                                  result={result}
-                                  router={router}
-                              />
-                          ))
-                        : null}
+                <div className="max-w-full w-[700px] mx-auto mb-4 px-4 py-5 flex flex-col justify-center">
+                    {results.length > 0 ? (
+                        results.map((result) => (
+                            <SearchResult
+                                key={result.capture.capture_id}
+                                result={result}
+                                router={router}
+                            />
+                        ))
+                    ) : (
+                        <div className="w-full">
+                            <h1 className="text-2xl font-semibold text-center">
+                                No Results Found
+                            </h1>
+                            <p className="text-lg opacity-50 text-center">
+                                Type an email address above to continue
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </Layout>
