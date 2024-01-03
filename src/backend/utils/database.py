@@ -73,3 +73,36 @@ def save_capture(capture_id, user_email, size, type, name):
     finally:
         # Close the database connection
         db.close()
+
+# Function to get all captures for a given email
+def get_captures_by_email(email):
+    db_path = "../../db/main.db"
+    
+    os.makedirs("../../db", exist_ok=True)
+
+    try:
+        # Connect to the database and create tables if not exist
+        db = sqlite3.connect(db_path)
+        create_capture_table(db)
+
+        # Get the user_id for the given email
+        cursor = db.cursor()
+        cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+
+        # If no user exists with the given email, return None
+        if row is None:
+            return None
+
+        # Get all captures for the given user_id
+        user_id = row[0]
+        cursor.execute("SELECT * FROM captures WHERE user_id = ?", (user_id,))
+        captures = cursor.fetchall()
+
+        # Return the captures
+        return captures
+    except Exception as e:
+        print(f"Error in get_captures_by_email: {e}")
+        return None
+    finally:
+        db.close()
