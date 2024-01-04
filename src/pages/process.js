@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";
 import Spinner from "@/components/Loaders/Spinner";
 import { useWebSocket } from "@/utils/WebSocketContext";
-import { headers } from "../../next.config";
 
 function _arrayBufferToBase64(buffer) {
     var binary = "";
@@ -126,7 +125,7 @@ function Capture() {
     }
 
     // Get Live Preview Socket
-    const liveSocket = useWebSocket(nodes[0]);
+    const liveSocket = useWebSocket(nodes[18]);
 
     // Set live preview stop time
     let streamStopTime = new Date();
