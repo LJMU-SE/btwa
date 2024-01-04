@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 
-template_path = f"../../public/img/poster/LJMU_bullet_time_poster_template.png"
+template_path = f"LJMU_bullet_time_poster_template.png"
 
 # Limit to 40 frames for an even 5x8 grid
 total_frames = 40
