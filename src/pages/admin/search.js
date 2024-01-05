@@ -8,6 +8,7 @@ function SearchResult({ result, router }) {
     function Spacer() {
         return <p className="mx-4">|</p>;
     }
+
     return (
         <div
             onClick={() => {
@@ -22,7 +23,7 @@ function SearchResult({ result, router }) {
                 </h2>
                 <p className="opacity-40">
                     {moment(result.capture.capture_date).format(
-                        "MMMM Do YYYY [at] h:mm:ss a"
+                        "MMMM Do YYYY [at] h:mm A"
                     )}
                 </p>
             </div>
@@ -43,8 +44,9 @@ function SearchPage() {
     function search(email) {
         fetch(`/api/admin/search?email=${email}`).then(async (res) => {
             const data = await res.json();
-            console.log(data);
-            setResults(data.results);
+            if (data.results == null || data.results.length == 0)
+                return setResults([]);
+            else setResults(data.results);
         });
     }
 
