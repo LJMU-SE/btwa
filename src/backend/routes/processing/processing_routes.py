@@ -6,6 +6,7 @@ from flask import request, jsonify
 # Import utility functions for video generation and database interaction
 from utils import video
 from utils import database
+from utils import poster
 
 # Define the route '/api/processing/360' with the HTTP method POST
 @processing_blueprint.route('/360', methods=["POST"])
@@ -26,8 +27,9 @@ async def process_360():
         # Create the directory to store images for the capture
         os.makedirs(f"../../outputs/{capture_id}/images", exist_ok=True)
 
-        # Generate the video using the provided images and dimensions
+        # Generate the video and poster using the provided images and dimensions
         await video.generate_video(images, capture_id, x, y)
+        await poster.generate_poster(capture_id)
 
         # Save capture details to the database
         database.save_capture(capture_id, email, f"{x} x {y}", capture_type, name)
@@ -37,7 +39,7 @@ async def process_360():
         # Return success response with capture_id
         return jsonify({
             "status": 200,
-            "message": "Video Render Successful",
+            "message": "Video Render and Poster Generation Successful",
             "id": capture_id,
         })
     except Exception as e:
@@ -54,3 +56,13 @@ async def process_360():
             "message": "Video Render Failed",
             "error": str(e),
         })
+
+
+
+
+
+
+    
+
+
+    
