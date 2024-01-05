@@ -2,11 +2,12 @@ import { useState, useRef } from "react";
 import toast from "react-hot-toast";
 import Spinner from "../Loaders/Spinner";
 import { useWebSocket } from "@/utils/WebSocketContext";
+import nodes from "@/nodes";
 
 function NodeCount({ count }) {
     const [updating, setUpdating] = useState(false);
     const btnRef = useRef(null);
-    const nodes = useWebSocket();
+    // const nodes = useWebSocket();
 
     function update(e) {
         setUpdating(true);
