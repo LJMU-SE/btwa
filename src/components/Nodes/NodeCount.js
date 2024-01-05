@@ -24,15 +24,32 @@ function NodeCount({ count }) {
 
     // Function to send the update process to all the nodes
     function updateAll() {
+        // New Update Function (Needs Fixing)
+        // return new Promise((resolve, reject) => {
+        //     try {
+        //         nodes.forEach((node) => {
+        //             node.emit("UPDATE");
+        //         });
+        //         resolve();
+        //     } catch (error) {
+        //         reject(error);
+        //     }
+        // });
+
+        // Promise function to process the image
         return new Promise((resolve, reject) => {
-            try {
-                nodes.forEach((node) => {
-                    node.emit("UPDATE");
-                });
-                resolve();
-            } catch (error) {
-                reject(error);
-            }
+            fetch("/api/admin/update", {
+                method: "POST",
+                body: JSON.stringify({ nodes }),
+            }).then(async (response) => {
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`🟢 | ${data.message}`);
+                    resolve();
+                } else {
+                    reject();
+                }
+            });
         });
     }
 
