@@ -1,6 +1,5 @@
 import Layout from "@/components/Layout/Layout";
 import { useWebSocket } from "@/utils/WebSocketContext";
-import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 
 function _arrayBufferToBase64(buffer) {
@@ -23,8 +22,8 @@ function PreviewPage({ addr }) {
     useEffect(() => {
         node.emit("START_STREAM", {
             resolution: {
-                x: 1920,
-                y: 1080,
+                x: 1280,
+                y: 720,
             },
             time: streamStopTime.toUTCString(),
         });
@@ -63,7 +62,7 @@ function PreviewPage({ addr }) {
 
 export function getServerSideProps(context) {
     const { query } = context;
-    const addr = query.addr;
+    const addr = query.addr || null;
 
     return {
         props: { addr },

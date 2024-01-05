@@ -1,19 +1,20 @@
 import { useState, useRef } from "react";
 import toast from "react-hot-toast";
 import Spinner from "../Loaders/Spinner";
-import nodes from "@/nodes";
+import { useWebSocket } from "@/utils/WebSocketContext";
 
 function NodeCount({ count }) {
     const [updating, setUpdating] = useState(false);
     const btnRef = useRef(null);
+    const nodes = useWebSocket();
 
     function update(e) {
         setUpdating(true);
         e.preventDefault();
         toast
-            .promise(updateAll(nodes), {
+            .promise(updateAll(), {
                 loading: `Updating Nodes`,
-                success: `All Connected Nodes Updated`,
+                success: `All Connected Nodes Updating`,
                 error: `Some Node Updates Failed`,
             })
             .finally(() => {
@@ -21,21 +22,17 @@ function NodeCount({ count }) {
             });
     }
 
-    function updateAll(nodes) {
-        // Promise function to process the image
+    // Function to send the update process to all the nodes
+    function updateAll() {
         return new Promise((resolve, reject) => {
-            fetch("/api/admin/update", {
-                method: "POST",
-                body: JSON.stringify({ nodes }),
-            }).then(async (response) => {
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(`🟢 | ${data.message}`);
-                    resolve();
-                } else {
-                    reject();
-                }
-            });
+            try {
+                nodes.forEach((node) => {
+                    node.emit("UPDATE");
+                });
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
