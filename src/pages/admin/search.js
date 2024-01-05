@@ -23,7 +23,7 @@ function SearchResult({ result, router }) {
                 </h2>
                 <p className="opacity-40">
                     {moment(result.capture.capture_date).format(
-                        "MMMM Do YYYY [at] h:mm:ss a"
+                        "MMMM Do YYYY [at] h:mm A"
                     )}
                 </p>
             </div>

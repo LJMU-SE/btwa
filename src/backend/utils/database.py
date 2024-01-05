@@ -98,7 +98,7 @@ def get_captures_by_email(email):
         user_id = row[0]
         name = row[1]
         email = row[2]
-        cursor.execute("SELECT * FROM captures WHERE user_id = ?", (user_id,))
+        cursor.execute("SELECT * FROM captures WHERE user_id = ? ORDER BY capture_date DESC", (user_id,))
         rows = cursor.fetchall()
 
         # Create a list to store the captures
