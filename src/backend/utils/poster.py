@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import os
 
-template_path = f"LJMU_bullet_time_poster_template.png"
-
 # Limit to 40 frames for an even 5x8 grid
 total_frames = 40
 
@@ -29,8 +27,10 @@ async def generate_poster(capture_id):
     # Combine frames into one image
     combined_frames = combine_frames(io_paths['input'])
 
+    template_path = "../../src/backend/utils/poster_template.png"
+
     if not os.path.exists(template_path):
-        return f"Could not find template at {template_path}"
+        print(f"Could not find template at {template_path}")
         
     background = cv2.imread(template_path)
 
@@ -49,9 +49,10 @@ async def generate_poster(capture_id):
         cv2.imwrite(f"{io_paths['output']}/combined_frames.jpg", combined_frames)
 
     except Exception as e:
-        return f"Error combining frames with template : {e}"
+        print(f"Error combining frames with template : {e}")
+        return
 
-    return "Poster generation successful!"
+    print("Poster generation successful!")
 
 def combine_frames(input_dir):
 
