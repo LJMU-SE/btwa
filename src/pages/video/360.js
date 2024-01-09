@@ -9,6 +9,8 @@ export default function Video360() {
     const nameRef = useRef(null);
     const resXRef = useRef(null);
     const resYRef = useRef(null);
+    const shutterRef = useRef(null);
+    const isoRef = useRef(null);
     const router = useRouter();
 
     function submit(e) {
@@ -18,7 +20,9 @@ export default function Video360() {
         url += `name=${nameRef.current.value}&`;
         url += `email=${emailRef.current.value}&`;
         url += `x=${resXRef.current.value}&`;
-        url += `y=${resYRef.current.value}`;
+        url += `y=${resYRef.current.value}&`;
+        url += `shutter=${shutterRef.current.value}&`;
+        url += `iso=${isoRef.current.value}`;
 
         router.push(url);
     }
@@ -61,6 +65,23 @@ export default function Video360() {
                             name={"resY"}
                             label={"Resolution (Y)"}
                         />
+                        <FormInput
+                            inputRef={shutterRef}
+                            type="text"
+                            placeholder={"1000"}
+                            defaultValue={"1000"}
+                            name={"shutter"}
+                            label={"Shutter Speed"}
+                        />
+                        <FormInput
+                            inputRef={isoRef}
+                            type="text"
+                            placeholder={"100"}
+                            defaultValue={"100"}
+                            name={"iso"}
+                            label={"Iso"}
+                        />
+                        
                     </FormContainer>
                     <FormContainer>
                         <button
