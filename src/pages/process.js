@@ -140,6 +140,8 @@ function Capture() {
             x: parseInt(router.query.x),
             y: parseInt(router.query.y),
         },
+        shutter_speed : parseInt(router.query.shutter),
+        iso : parseInt(router.query.iso),
     };
 
     // Process all images
