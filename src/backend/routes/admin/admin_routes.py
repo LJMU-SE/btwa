@@ -18,9 +18,9 @@ def update_host(host):
     ssh.close()
 
     if exit_code == 0:
-        return {'host': host, 'status': 200}
+        return {'host': host, 'status': 200}, 200
     else:
-        return {'host': host, 'status': 500, 'message': f'Command failed with code {exit_code}'}
+        return {'host': host, 'status': 500, 'message': f'Command failed with code {exit_code}'}, 500
 
 
 @admin_blueprint.route('/update', methods=["POST"])

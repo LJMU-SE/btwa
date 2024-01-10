@@ -149,7 +149,9 @@ function View({ captureInfo }) {
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Captured On:</b>{" "}
-                        {moment(date).format("MMMM Do YYYY [at] h:mm:ss a")}
+                        {moment(new Date(date)).format(
+                            "MMMM Do YYYY [at] h:mm:ss a"
+                        )}
                     </h2>
                     <h2 className=" py-1">
                         <b className="opacity-70">Video Resolution:</b> {size}
