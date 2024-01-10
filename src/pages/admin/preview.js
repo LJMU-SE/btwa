@@ -26,6 +26,15 @@ function PreviewWindow({ addr }) {
     // Get the router
     const router = useRouter();
 
+    function processVideoFrame(data) {
+        // Update the image source with the base64 data
+        if (liveRef.current) {
+            liveRef.current.src = `data:image/jpeg;base64,${_arrayBufferToBase64(
+                data.frame_data
+            )}`;
+        }
+    }
+
     // Configure live stream
     useEffect(() => {
         node.emit("START_STREAM", {
@@ -34,22 +43,15 @@ function PreviewWindow({ addr }) {
                 y: 720,
             },
             // iso: 1000,
-            // shutter_speed: 10000,
+            shutter_speed: 10000,
             time: streamStopTime.toUTCString(),
         });
 
         // When video frame is received, update the stream
-        node.on("VIDEO_FRAME", (data) => {
-            // Update the image source with the base64 data
-            if (liveRef.current) {
-                liveRef.current.src = `data:image/jpeg;base64,${_arrayBufferToBase64(
-                    data.frame_data
-                )}`;
-            }
-        });
+        node.on("VIDEO_FRAME", processVideoFrame);
 
         return () => {
-            node.emit("STOP_STREAM");
+            node.off("VIDEO_FRAME", processVideoFrame);
         };
     }, [router]);
 
@@ -94,7 +96,7 @@ function PreviewWindow({ addr }) {
         <div className="relative bg-[#101018] w-full h-[calc(100vh-80px)]">
             <img
                 ref={liveRef}
-                className="opacity-70 z-0 w-full h-[calc(100vh-80px)] object-center object-cover "
+                className="opacity-70 z-0 w-full h-[calc(100vh-80px)] object-bottom object-cover "
             />
             <p className="absolute top-2 left-2">{addr}</p>
             <button
@@ -109,6 +111,10 @@ function PreviewWindow({ addr }) {
             >
                 <FaAngleRight />
             </button>
+            <img
+                className="absolute left-[calc(50%-120px)] bottom-0 w-60"
+                src="/img/person.png"
+            ></img>
         </div>
     );
 }

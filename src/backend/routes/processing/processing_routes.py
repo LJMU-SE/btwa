@@ -11,6 +11,7 @@ from utils import poster
 # Define the route '/api/processing/360' with the HTTP method POST
 @processing_blueprint.route('/360', methods=["POST"])
 async def process_360():
+    print("🟠 | Video Render Started")
     # Generate a unique capture_id using UUID
     capture_id = str(uuid.uuid4())
 

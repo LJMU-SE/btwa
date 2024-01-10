@@ -68,8 +68,8 @@ export default function Video360() {
                         <FormInput
                             inputRef={shutterRef}
                             type="text"
-                            placeholder={"1000"}
-                            defaultValue={"1000"}
+                            placeholder={"10000"}
+                            defaultValue={"10000"}
                             name={"shutter"}
                             label={"Shutter Speed"}
                         />
@@ -81,7 +81,6 @@ export default function Video360() {
                             name={"iso"}
                             label={"Iso"}
                         />
-                        
                     </FormContainer>
                     <FormContainer>
                         <button

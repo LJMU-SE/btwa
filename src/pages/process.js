@@ -79,6 +79,8 @@ function Capture() {
             return x.connected;
         }).length;
 
+        console.log(images.current, connectedSocketCount);
+
         // If number of images matches number of connected sockets, process the images
         if (images.current.length == connectedSocketCount) {
             processImage();
@@ -125,7 +127,7 @@ function Capture() {
     }
 
     // Get Live Preview Socket
-    const liveSocket = useWebSocket(nodes[18]);
+    const liveSocket = useWebSocket(nodes[4]);
 
     // Set live preview stop time
     let streamStopTime = new Date();
@@ -140,8 +142,8 @@ function Capture() {
             x: parseInt(router.query.x),
             y: parseInt(router.query.y),
         },
-        shutter_speed : parseInt(router.query.shutter),
-        iso : parseInt(router.query.iso),
+        shutter_speed: parseInt(router.query.shutter),
+        iso: parseInt(router.query.iso),
     };
 
     // Process all images
@@ -157,6 +159,7 @@ function Capture() {
             default:
                 break;
         }
+
         // Loop through the nodes
         allSockets.forEach((socket) => {
             // Capture an image
@@ -186,6 +189,10 @@ function Capture() {
                 )}`;
             }
         });
+
+        return () => {
+            liveSocket.off("VIDEO_FRAME");
+        };
     }, []);
 
     return (

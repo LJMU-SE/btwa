@@ -9,13 +9,14 @@ async def generate_video(images, capture_id, x, y):
     output_dir = f"../../outputs/{capture_id}/images"
     os.makedirs(output_dir, exist_ok=True)
 
-    index = 1
+    print(len(images))
+
     # Save each image to the output directory
-    for image in images:
+    for image in sorted(images, key=lambda x: x['node']):
+        print(f"Saving image for node {image['node']}")
         img_data = b64decode(image['imgData'])
         with open(f"{output_dir}/capture-{image['node']}.jpg", "wb") as img_file:
             img_file.write(img_data)
-        index += 1
 
     # Configuration for ffmpeg
     config = {
