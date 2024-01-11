@@ -42,7 +42,7 @@ async def process_360():
             "status": 200,
             "message": "Video Render and Poster Generation Successful",
             "id": capture_id,
-        })
+        }), 200
     except Exception as e:
         # Handle exceptions during video rendering
         print(f"🔴 | Error during video rendering: {e}")
@@ -56,7 +56,7 @@ async def process_360():
             "status": 500,
             "message": "Video Render Failed",
             "error": str(e),
-        })
+        }), 500
 
 
 
