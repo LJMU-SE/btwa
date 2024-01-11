@@ -39,8 +39,8 @@ function PreviewWindow({ addr }) {
     useEffect(() => {
         node.emit("START_STREAM", {
             resolution: {
-                x: 1280,
-                y: 720,
+                x: 1920,
+                y: 1080,
             },
             // iso: 1000,
             shutter_speed: 10000,
