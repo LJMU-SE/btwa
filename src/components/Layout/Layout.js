@@ -1,6 +1,7 @@
 import Head from "next/head";
-import Navbar from "./Navbar";
+import Navbar from "./Navigation/Navbar";
 import APIStatus from "./APIStatus";
+import AdminNavbar from "./Navigation/AdminNavbar";
 
 function Layout({
     title = "LJMU Bullet-Time Project",
@@ -8,6 +9,7 @@ function Layout({
     navbar = false,
     links = true,
     showNodes = true,
+    isAdmin = false,
     children,
 }) {
     return (
@@ -47,7 +49,13 @@ function Layout({
 
                 {/* <!-- Meta Tags Generated with https://metatags.io --> */}
             </Head>
-            {navbar ? <Navbar links={links} /> : null}
+            {navbar ? (
+                isAdmin ? (
+                    <AdminNavbar links={links} />
+                ) : (
+                    <Navbar links={links} />
+                )
+            ) : null}
             <main className={navbar ? "h-[calc(100vh-80px)]" : "h-screen"}>
                 {children}
             </main>

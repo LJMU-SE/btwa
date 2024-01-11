@@ -11,6 +11,7 @@ function AdminPage() {
             title={"Bullet Time | Node Manager"}
             navbar={true}
             showNodes={false}
+            isAdmin={true}
         >
             <div className="w-full h-full overflow-hidden">
                 <NodeCount count={count} />

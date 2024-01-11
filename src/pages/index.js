@@ -19,7 +19,7 @@ const links = [
     },
     {
         name: "Node Administration",
-        href: "/admin/nodes",
+        href: "/admin/status",
         img: "/img/home/link-4.webp",
     },
 ];
