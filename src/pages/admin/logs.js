@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout/Layout";
 import { useWebSocket } from "@/utils/WebSocketContext";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Ping({ status }) {
     switch (status) {
@@ -20,17 +20,16 @@ function Ping({ status }) {
     }
 }
 
-function NodeLink(socket) {
-    const conn = socket.socket;
+function NodeLink({ socket, logRef, setCurrent }) {
+    const conn = socket;
     const [name, setName] = useState("NODE_NAME");
     const [ver, setVer] = useState("NODE_VERSION");
     const [status, setStatus] = useState(false);
 
-    useEffect(() => {
-        console.log(conn.connected);
-        if (conn.connected) setStatus(true);
-        else setStatus(false);
-    }, [conn]);
+    function getLogs() {
+        console.log("Getting Logs");
+        conn.emit("GET_LOGS");
+    }
 
     useEffect(() => {
         // Get Node Data
@@ -50,12 +49,22 @@ function NodeLink(socket) {
             conn.emit("GET_NODE_DATA");
         });
 
+        conn.on("LOGS", (data) => {
+            logRef.current.value = data.logs;
+            logRef.current.scrollTop = logRef.current.scrollHeight;
+            setCurrent(data.node);
+        });
+
         return () => {
             conn.off("NODE_DATA");
+            conn.off("LOGS");
         };
-    }, []);
+    }, [logRef]);
     return (
-        <div className="w-full min-h-14 h-max flex justify-between items-center p-2 border-b border-black/50 dark:border-white/50 border-solid">
+        <div
+            className="w-full min-h-14 h-max flex justify-between items-center p-2 border-b border-black/50 dark:border-white/50 border-solid cursor-pointer"
+            onClick={getLogs}
+        >
             <div className="w-12 flex justify-center items-center">
                 <Ping status={status} />
             </div>
@@ -69,15 +78,31 @@ function NodeLink(socket) {
 
 export default function LogPage() {
     const sockets = useWebSocket();
+    const [currentNode, setCurrentNode] = useState();
+    const logsRef = useRef();
+
     return (
         <Layout title="Bullet Time | Logs" navbar={true} isAdmin={true}>
             <div className="max-h-[calc(100vh-80px)] flex justify-center items-center">
                 <div className="w-72 h-full flex flex-col max-h-[calc(100vh-80px)] overflow-auto scrollbar-hide justify-start items-center border-r dark:border-white/50">
                     {sockets.map((socket) => (
-                        <NodeLink socket={socket} />
+                        <NodeLink
+                            socket={socket}
+                            logRef={logsRef}
+                            setCurrent={setCurrentNode}
+                        />
                     ))}
                 </div>
-                <div className="w-full h-full p-6"></div>
+                <div className="max-h-[calc(100vh-80px)] w-full flex flex-col justify-center items-center">
+                    <div className="w-full border-b border-black/50 dark:border-white/50 border-solid h-12 px-3 flex justify-start items-center font-semibold">
+                        <h1>Logs For {currentNode}</h1>
+                    </div>
+                    <textarea
+                        className="max-h-[calc(100vh-128px)] h-screen w-full dark:bg-[#101018] focus:outline-none resize-none p-3"
+                        ref={logsRef}
+                        spellCheck="false"
+                    ></textarea>
+                </div>
             </div>
         </Layout>
     );
