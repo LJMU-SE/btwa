@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import nodes from "@/nodes.json";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import Layout from "@/components/Layout/Layout";

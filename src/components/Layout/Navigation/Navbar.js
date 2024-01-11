@@ -1,14 +1,6 @@
-import Link from "next/link";
+import Navlink from "./NavLink";
 
-function Navlink({ href, children }) {
-    return (
-        <Link href={href} className=" relative w-auto px-4">
-            {children}
-        </Link>
-    );
-}
-
-function Navbar({ links = true }) {
+export default function Navbar({ links = true }) {
     return (
         <nav className="bg-white dark:bg-[#101018] w-full h-20 px-6 py-1 flex sm:justify-evenly justify-center items-center border-b-[1px] border-solid border-black/25 dark:border-white/25 z-10">
             <Navlink href={"/"}>
@@ -26,13 +18,9 @@ function Navbar({ links = true }) {
             {links ? (
                 <div>
                     <Navlink href={"/"}>Home</Navlink>
-                    <Navlink href={"/admin/search"}>Search</Navlink>
-                    <Navlink href={"/admin/nodes"}>Nodes</Navlink>
-                    <Navlink href={"/admin/preview"}>Preview</Navlink>
+                    <Navlink href={"/admin/status"}>Admin</Navlink>
                 </div>
             ) : null}
         </nav>
     );
 }
-
-export default Navbar;

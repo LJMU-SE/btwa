@@ -121,7 +121,12 @@ function PreviewWindow({ addr }) {
 
 function PreviewPage({ addr }) {
     return (
-        <Layout title={"Previewing Node"} links={true} navbar={true}>
+        <Layout
+            title={"Previewing Node"}
+            links={true}
+            isAdmin={true}
+            navbar={true}
+        >
             <div className={"w-full flex flex-row flex-wrap overflow-auto"}>
                 <PreviewWindow addr={addr} />
             </div>

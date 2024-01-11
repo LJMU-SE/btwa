@@ -51,7 +51,12 @@ function SearchPage() {
     }
 
     return (
-        <Layout title="Bullet Time | Search" navbar={true} showNodes={true}>
+        <Layout
+            title="Bullet Time | Search"
+            navbar={true}
+            isAdmin={true}
+            showNodes={true}
+        >
             <div className="search">
                 <div className="max-w-full w-[700px] mx-auto mb-4 px-4 py-5">
                     <div className="w-full my-3">

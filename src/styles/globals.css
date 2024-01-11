@@ -18,3 +18,7 @@ body {
     color: var(--font);
     background: var(--background);
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
